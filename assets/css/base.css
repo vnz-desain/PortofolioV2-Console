@@ -1,0 +1,93 @@
+/* ═══════════════════════════════════════════════════════════
+   BASE.CSS — Variables, Reset, Typography
+   MEA Console · console.evanalmunawar.my.id
+═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Color tokens ── */
+  --bg:          #080D18;
+  --bg-soft:     #0B111E;
+  --surface:     #101828;
+  --surface-2:   #131C2E;
+  --surface-3:   #1A2540;
+  --border:      rgba(129,212,250,0.09);
+  --border-mid:  rgba(129,212,250,0.18);
+  --accent:      #81D4FA;
+  --accent-dim:  rgba(129,212,250,0.12);
+  --accent-glow: rgba(129,212,250,0.06);
+  --white:       #F0F4F8;
+  --white-dim:   #8A9AAD;
+  --danger:      #F87171;
+  --danger-dim:  rgba(248,113,113,0.12);
+  --success:     #34D399;
+  --success-dim: rgba(52,211,153,0.12);
+  --warning:     #FBBF24;
+
+  /* ── Typography ── */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── Spacing ── */
+  --sidebar-w: 220px;
+  --topbar-h:  56px;
+  --radius:    6px;
+  --radius-lg: 10px;
+
+  /* ── Transitions ── */
+  --t-fast:   120ms ease;
+  --t-normal: 220ms ease;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 15px; -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--white);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Browser defaults removal */
+::selection { background: rgba(129,212,250,0.2); color: var(--white); }
+* { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
+:focus:not(:focus-visible) { outline: none; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+input, textarea, select {
+  font-family: inherit;
+  color: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+}
+img { display: block; max-width: 100%; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 2px; }
+
+/* ── Typography scale ── */
+h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; }
+h2 { font-size: 1.2rem; font-weight: 600; letter-spacing: -0.01em; }
+h3 { font-size: 1rem;   font-weight: 600; }
+h4 { font-size: 0.875rem; font-weight: 500; }
+
+p  { font-size: 0.875rem; color: var(--white-dim); }
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--white-dim);
+}
+.accent { color: var(--accent); }
+.danger { color: var(--danger); }
+.success { color: var(--success); }
+.muted { color: var(--white-dim); }
