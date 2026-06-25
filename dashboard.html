@@ -461,8 +461,12 @@
   import { initSkills }     from './assets/js/modules/skills.js';
   import { initProjects }   from './assets/js/modules/projects.js';
 
-  /* ── Auth guard ── */
-  if (!sb.isLoggedIn()) { window.location.href = 'index.html'; }
+  /* ── Auth guard — redirect ke login kalau belum ada session ── */
+  if (!sb.isLoggedIn()) {
+    // Cek sekali lagi raw localStorage sebelum redirect
+    const raw = localStorage.getItem('sb-ocedszxukzrnmvrecrnx-auth-token');
+    if (!raw) { window.location.href = 'index.html'; }
+  }
 
   /* ── User info in sidebar ── */
   const user = sb.getUser();

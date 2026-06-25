@@ -157,8 +157,11 @@
   <script type="module">
     import { sb } from './assets/js/supabase.js';
 
-    // Kalau sudah login, redirect ke dashboard
-    if (sb.isLoggedIn()) window.location.href = 'dashboard.html';
+    // Kalau sudah ada session di localStorage, langsung ke dashboard
+    const raw = localStorage.getItem('sb-ocedszxukzrnmvrecrnx-auth-token');
+    if (raw) {
+      try { if (JSON.parse(raw)?.access_token) window.location.href = 'dashboard.html'; } catch {}
+    }
 
     const emailEl  = document.getElementById('email');
     const passEl   = document.getElementById('password');
