@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MEA Console — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 30%, rgba(129,212,250,0.05) 0%, transparent 70%),
+        var(--bg);
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 360px;
+      padding: 1rem;
+    }
+
+    .login-brand {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .login-brand-logo {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .login-brand-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-top: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .login-brand-sub {
+      font-size: 0.78rem;
+      color: var(--white-dim);
+      margin-top: 0.25rem;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+    }
+    .login-card::before {
+      content: '';
+      display: block;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(129,212,250,0.3), transparent);
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--white-dim);
+      margin-bottom: 0.4rem;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.6rem 0.85rem;
+      font-size: 0.875rem;
+      color: var(--white);
+      transition: border-color 0.15s;
+    }
+    .form-input:focus { border-color: var(--accent); outline: none; background: var(--surface-3); }
+
+    .btn-login {
+      width: 100%;
+      padding: 0.65rem;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-login:hover:not(:disabled) { background: #a8e6fd; }
+    .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .login-error {
+      font-size: 0.775rem;
+      color: var(--danger);
+      margin-top: 0.75rem;
+      text-align: center;
+      display: none;
+    }
+    .login-error.show { display: block; }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.7rem;
+      color: var(--white-dim);
+      opacity: 0.5;
+    }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(8,13,24,0.3);
+      border-top-color: var(--bg);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="login-brand-logo">MEA</div>
+      <h1 class="login-brand-title">Console</h1>
+      <p class="login-brand-sub">Portfolio Management Dashboard</p>
+    </div>
+
+    <div class="login-card">
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-input" type="email" id="email" placeholder="your@email.com" autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+
+      <button class="btn-login" id="login-btn">Sign In</button>
+      <div class="login-error" id="login-error"></div>
+    </div>
+
+    <div class="login-footer">MEA Ecosystem · console.evanalmunawar.my.id</div>
+  </div>
+
+  <script type="module">
+    import { sb } from './assets/js/supabase.js';
+
+    // Kalau sudah login, redirect ke dashboard
+    if (sb.isLoggedIn()) window.location.href = 'dashboard.html';
+
+    const emailEl  = document.getElementById('email');
+    const passEl   = document.getElementById('password');
+    const btnEl    = document.getElementById('login-btn');
+    const errEl    = document.getElementById('login-error');
+
+    async function doLogin() {
+      const email    = emailEl.value.trim();
+      const password = passEl.value;
+      if (!email || !password) { showErr('Email dan password wajib diisi.'); return; }
+
+      btnEl.disabled = true;
+      btnEl.innerHTML = '<div class="spinner"></div>Signing in...';
+      errEl.classList.remove('show');
+
+      try {
+        await sb.signIn(email, password);
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        showErr(err.message || 'Login gagal. Cek email & password.');
+        btnEl.disabled = false;
+        btnEl.innerHTML = 'Sign In';
+      }
+    }
+
+    function showErr(msg) { errEl.textContent = msg; errEl.classList.add('show'); }
+
+    btnEl.addEventListener('click', doLogin);
+    passEl.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+    emailEl.addEventListener('keydown', e => { if (e.key === 'Enter') passEl.focus(); });
+  </script>
+</body>
+</html>

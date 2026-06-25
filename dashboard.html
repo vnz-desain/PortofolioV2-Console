@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MEA Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/base.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+  <style>
+    /* Icon picker grid */
+    .icon-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+      gap: 0.4rem;
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 0.5rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .icon-option {
+      width: 42px; height: 42px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      background: none;
+      color: var(--white-dim);
+      cursor: pointer;
+      transition: all var(--t-fast);
+    }
+    .icon-option:hover { border-color: var(--border-mid); color: var(--white); background: var(--surface-3); }
+    .icon-option.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+    .icon-option svg { width: 18px; height: 18px; }
+
+    .skill-icon-preview svg { width: 18px; height: 18px; color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div>
+        <div class="sidebar-brand-logo">MEA</div>
+        <div class="sidebar-brand-sub">Console</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Overview</div>
+      <button class="nav-item" data-route="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span class="nav-label">Dashboard</span>
+      </button>
+
+      <div class="sidebar-section">Portfolio</div>
+      <button class="nav-item" data-route="about">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-label">About</span>
+      </button>
+      <button class="nav-item" data-route="slides">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <span class="nav-label">Slides</span>
+      </button>
+      <button class="nav-item" data-route="skills">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span class="nav-label">Skills</span>
+      </button>
+      <button class="nav-item" data-route="projects">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span class="nav-label">Projects</span>
+      </button>
+
+      <div class="sidebar-section">Links</div>
+      <a class="nav-item" href="https://evanalmunawar.my.id" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span class="nav-label">Portfolio ↗</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" id="user-avatar">M</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="user-email">—</div>
+          <div class="sidebar-user-role">Admin</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="logout-btn" style="width:100%">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── TOPBAR ── -->
+  <header class="topbar">
+    <div>
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="topbar-sub">console.evanalmunawar.my.id</div>
+    </div>
+    <div class="topbar-actions">
+      <a href="https://evanalmunawar.my.id" target="_blank" class="btn btn-ghost btn-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View Site
+      </a>
+      <!-- Mobile menu toggle -->
+      <button class="btn btn-ghost btn-sm btn-icon" id="mobile-menu-btn" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── MAIN ── -->
+  <main class="main-content">
+
+    <!-- ░░ DASHBOARD ░░ -->
+    <div class="page" data-page="dashboard">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Dashboard</h1>
+          <p>Ringkasan konten portfolio kamu</p>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:1.5rem" id="stat-cards">
+        <!-- Filled by JS -->
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>Recent Slides</h3></div>
+          <div id="dash-slides-list" style="display:flex;flex-direction:column;gap:0.5rem"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Recent Projects</h3></div>
+          <div id="dash-projects-list" style="display:flex;flex-direction:column;gap:0.5rem"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ░░ ABOUT ░░ -->
+    <div class="page" data-page="about">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>About</h1>
+          <p>Bio dan tags yang tampil di section About Me portfolio</p>
+        </div>
+        <button class="btn btn-primary" id="about-save-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="stack">
+          <div class="form-group">
+            <label class="form-label" for="about-bio">Bio <span class="required">*</span></label>
+            <textarea class="form-textarea" id="about-bio" rows="5"
+              placeholder="Tulis bio singkat tentang dirimu..."></textarea>
+            <span class="form-hint">Teks ini tampil sebagai paragraf utama di section About Me portfolio.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tags</label>
+            <div class="tags-wrap" id="about-tags-wrap">
+              <input class="tags-input" id="about-tags-input" placeholder="Ketik tag lalu Enter..." />
+            </div>
+            <span class="form-hint">Contoh: Administration, Social Media Management</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ░░ SLIDES ░░ -->
+    <div class="page" data-page="slides">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Slides</h1>
+          <p>Konten tab Education & Venture di section About</p>
+        </div>
+        <button class="btn btn-primary" id="slide-add-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Slide
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tab</th>
+                <th>Title</th>
+                <th>Period</th>
+                <th>Founder</th>
+                <th>Order</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="slides-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ░░ SKILLS ░░ -->
+    <div class="page" data-page="skills">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Skills</h1>
+          <p>Skill cards di section Skills & Expertise portfolio</p>
+        </div>
+        <button class="btn btn-primary" id="skill-add-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Skill
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Icon</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Order</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="skills-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ░░ PROJECTS ░░ -->
+    <div class="page" data-page="projects">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Projects</h1>
+          <p>Featured work di section Selected Projects portfolio</p>
+        </div>
+        <button class="btn btn-primary" id="project-add-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Project
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Link</th>
+                <th>Order</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="projects-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════ -->
+
+<!-- Slide Modal -->
+<div class="modal-backdrop" id="slide-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="slide-modal-title">Add Slide</h3>
+      <button class="btn btn-ghost btn-sm btn-icon" id="slide-modal-close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tab <span class="required">*</span></label>
+          <select class="form-select" id="slide-tab">
+            <option value="Education">Education</option>
+            <option value="Venture">Venture</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Period</label>
+          <input class="form-input" id="slide-period" placeholder="2025 — Present" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Title <span class="required">*</span></label>
+        <input class="form-input" id="slide-title" placeholder="MAN 2 Kota Cirebon" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subtitle</label>
+        <input class="form-input" id="slide-subtitle" placeholder="Multimedia Major" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="slide-body" rows="4" placeholder="Ceritakan lebih detail..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tags</label>
+        <div class="tags-wrap" id="slide-tags-wrap">
+          <input class="tags-input" id="slide-tags-input" placeholder="Ketik lalu Enter..." />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Sort Order</label>
+          <input class="form-input" type="number" id="slide-order" value="0" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Founder Badge</label>
+          <div class="toggle-wrap" style="margin-top:0.5rem">
+            <label class="toggle">
+              <input type="checkbox" id="slide-founder" />
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label muted">Tampil badge Founder</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="window.modalClose('slide-modal')">Cancel</button>
+      <button class="btn btn-primary" id="slide-save-btn">Save Slide</button>
+    </div>
+  </div>
+</div>
+
+<!-- Skill Modal -->
+<div class="modal-backdrop" id="skill-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="skill-modal-title">Add Skill</h3>
+      <button class="btn btn-ghost btn-sm btn-icon" id="skill-modal-close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Icon <span class="required">*</span></label>
+        <input type="hidden" id="skill-icon-val" value="star" />
+        <div class="icon-picker-grid" id="icon-picker-grid"></div>
+        <span class="form-hint">Klik icon untuk memilih</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Name <span class="required">*</span></label>
+        <input class="form-input" id="skill-name" placeholder="Video Editing" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="skill-body" rows="3" placeholder="Deskripsi singkat skill ini..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sort Order</label>
+        <input class="form-input order-input" type="number" id="skill-order" value="0" min="0" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="window.modalClose('skill-modal')">Cancel</button>
+      <button class="btn btn-primary" id="skill-save-btn">Save Skill</button>
+    </div>
+  </div>
+</div>
+
+<!-- Project Modal -->
+<div class="modal-backdrop" id="project-modal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <h3 id="project-modal-title">Add Project</h3>
+      <button class="btn btn-ghost btn-sm btn-icon" id="project-modal-close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Image upload -->
+      <div class="form-group">
+        <label class="form-label">Cover Image</label>
+        <div class="upload-zone" id="project-upload-zone">
+          <input type="file" id="project-image-file" accept="image/*" />
+          <div class="upload-zone-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div class="upload-zone-text">Klik atau drag foto project</div>
+          <div class="upload-zone-hint">Auto compress → WebP ≤500KB</div>
+        </div>
+        <div class="upload-progress" id="project-upload-progress">
+          <div class="upload-progress-bar" id="project-upload-bar"></div>
+        </div>
+        <img class="upload-preview" id="project-image-preview" alt="Preview" />
+        <span class="form-hint" id="project-image-info"></span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Number</label>
+          <input class="form-input" id="project-num" placeholder="01" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fallback Text</label>
+          <input class="form-input" id="project-fallback" placeholder="FILM" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Title <span class="required">*</span></label>
+        <input class="form-input" id="project-title" placeholder="Judul project" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="project-body" rows="3" placeholder="Deskripsi singkat project..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Link</label>
+        <input class="form-input" id="project-link" placeholder="https://youtu.be/..." />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tags</label>
+        <div class="tags-wrap" id="project-tags-wrap">
+          <input class="tags-input" id="project-tags-input" placeholder="Ketik lalu Enter..." />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sort Order</label>
+        <input class="form-input order-input" type="number" id="project-order" value="0" min="0" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="window.modalClose('project-modal')">Cancel</button>
+      <button class="btn btn-primary" id="project-save-btn">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MAIN SCRIPT
+══════════════════════════════════════════ -->
+<script type="module">
+  import { sb }             from './assets/js/supabase.js';
+  import { router }         from './assets/js/router.js';
+  import { toast, modal }   from './assets/js/ui.js';
+  import { initAbout }      from './assets/js/modules/about.js';
+  import { initSlides }     from './assets/js/modules/slides.js';
+  import { initSkills }     from './assets/js/modules/skills.js';
+  import { initProjects }   from './assets/js/modules/projects.js';
+
+  /* ── Auth guard ── */
+  if (!sb.isLoggedIn()) { window.location.href = 'index.html'; }
+
+  /* ── User info in sidebar ── */
+  const user = sb.getUser();
+  if (user) {
+    const emailEl  = document.getElementById('user-email');
+    const avatarEl = document.getElementById('user-avatar');
+    if (emailEl)  emailEl.textContent  = user.email;
+    if (avatarEl) avatarEl.textContent = (user.email || 'M')[0].toUpperCase();
+  }
+
+  /* ── Logout ── */
+  document.getElementById('logout-btn')?.addEventListener('click', async () => {
+    await sb.signOut();
+    window.location.href = 'index.html';
+  });
+
+  /* ── Mobile sidebar ── */
+  const mobileBtn = document.getElementById('mobile-menu-btn');
+  const sidebar   = document.getElementById('sidebar');
+  if (window.innerWidth <= 768 && mobileBtn) mobileBtn.style.display = 'flex';
+  mobileBtn?.addEventListener('click', () => sidebar?.classList.toggle('open'));
+  document.addEventListener('click', e => {
+    if (window.innerWidth <= 768 && sidebar?.classList.contains('open')) {
+      if (!sidebar.contains(e.target) && e.target !== mobileBtn) sidebar.classList.remove('open');
+    }
+  });
+
+  /* ── Global helpers (untuk onclick di HTML) ── */
+  window.modalClose = (id) => modal.close(id);
+
+  /* ── Dashboard page ── */
+  async function initDashboard() {
+    try {
+      const [slides, skills, projects, about] = await Promise.all([
+        sb.select('slides'),
+        sb.select('skills'),
+        sb.select('projects'),
+        sb.select('about', { limit: 1 })
+      ]);
+
+      /* Stat cards */
+      const statsEl = document.getElementById('stat-cards');
+      if (statsEl) {
+        statsEl.innerHTML = [
+          { label: 'Slides',   val: slides.length,   icon: '<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>' },
+          { label: 'Skills',   val: skills.length,   icon: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' },
+          { label: 'Projects', val: projects.length, icon: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>' }
+        ].map(s => `
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">${s.icon}</svg>
+            </div>
+            <div>
+              <div class="stat-val">${s.val}</div>
+              <div class="stat-label">${s.label}</div>
+            </div>
+          </div>`).join('');
+      }
+
+      /* Recent slides */
+      const slidesEl = document.getElementById('dash-slides-list');
+      if (slidesEl) {
+        slidesEl.innerHTML = slides.slice(0, 5).map(s => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border)">
+            <div>
+              <span class="badge ${s.tab === 'Education' ? 'badge-blue' : 'badge-green'}" style="margin-right:0.5rem">${s.tab}</span>
+              <span style="font-size:0.825rem">${s.title}</span>
+            </div>
+          </div>`).join('') || '<p style="font-size:0.8rem;color:var(--white-dim)">Belum ada slide.</p>';
+      }
+
+      /* Recent projects */
+      const projEl = document.getElementById('dash-projects-list');
+      if (projEl) {
+        projEl.innerHTML = projects.slice(0, 5).map(p => `
+          <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0;border-bottom:1px solid var(--border)">
+            ${p.image_url
+              ? `<img src="${p.image_url}" style="width:40px;height:30px;object-fit:cover;border-radius:3px;flex-shrink:0" />`
+              : `<div style="width:40px;height:30px;background:var(--surface-3);border-radius:3px;flex-shrink:0"></div>`}
+            <span style="font-size:0.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.title}</span>
+          </div>`).join('') || '<p style="font-size:0.8rem;color:var(--white-dim)">Belum ada project.</p>';
+      }
+    } catch (err) {
+      toast.error('Dashboard error: ' + err.message);
+    }
+  }
+
+  /* ── Init modules ── */
+  await initAbout();
+  await initSlides();
+  await initSkills();
+  await initProjects();
+
+  /* ── Router ── */
+  router
+    .on('dashboard', initDashboard)
+    .on('about',     () => {})
+    .on('slides',    () => {})
+    .on('skills',    () => {})
+    .on('projects',  () => {})
+    .start();
+
+  /* Nav click handlers */
+  document.querySelectorAll('.nav-item[data-route]').forEach(el => {
+    el.addEventListener('click', () => router.go(el.dataset.route));
+  });
+</script>
+
+</body>
+</html>
