@@ -452,6 +452,12 @@
 <!-- ══════════════════════════════════════════
      MAIN SCRIPT
 ══════════════════════════════════════════ -->
+<script>
+  // Global error catcher — tampil di console
+  window.addEventListener('error', e => console.error('GLOBAL ERROR:', e.message, e.filename, e.lineno));
+  window.addEventListener('unhandledrejection', e => console.error('UNHANDLED PROMISE:', e.reason));
+</script>
+
 <script type="module">
   import { sb }             from './assets/js/supabase.js';
   import { router }         from './assets/js/router.js';
@@ -461,12 +467,9 @@
   import { initSkills }     from './assets/js/modules/skills.js';
   import { initProjects }   from './assets/js/modules/projects.js';
 
-  /* ── Auth guard — redirect ke login kalau belum ada session ── */
-  if (!sb.isLoggedIn()) {
-    // Cek sekali lagi raw localStorage sebelum redirect
-    const raw = localStorage.getItem('sb-ocedszxukzrnmvrecrnx-auth-token');
-    if (!raw) { window.location.href = 'index.html'; }
-  }
+  /* ── Auth guard ── */
+  const _raw = localStorage.getItem('sb-ocedszxukzrnmvrecrnx-auth-token');
+  if (!_raw) { window.location.href = 'index.html'; }
 
   /* ── User info in sidebar ── */
   const user = sb.getUser();
@@ -554,11 +557,11 @@
     }
   }
 
-  /* ── Init modules ── */
-  await initAbout();
-  await initSlides();
-  await initSkills();
-  await initProjects();
+  /* ── Init modules — masing-masing isolated, error satu tidak stop yang lain ── */
+  try { await initAbout();    } catch(e) { console.warn('initAbout error:', e); }
+  try { await initSlides();   } catch(e) { console.warn('initSlides error:', e); }
+  try { await initSkills();   } catch(e) { console.warn('initSkills error:', e); }
+  try { await initProjects(); } catch(e) { console.warn('initProjects error:', e); }
 
   /* ── Router ── */
   router
