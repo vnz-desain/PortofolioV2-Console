@@ -3,195 +3,357 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MEA Console — Login</title>
+  <title>MEA Console</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/base.css" />
-  <style>
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background:
-        radial-gradient(ellipse 60% 50% at 50% 30%, rgba(129,212,250,0.05) 0%, transparent 70%),
-        var(--bg);
-    }
-
-    .login-wrap {
-      width: 100%;
-      max-width: 360px;
-      padding: 1rem;
-    }
-
-    .login-brand {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-    .login-brand-logo {
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.35em;
-      color: var(--accent);
-      font-weight: 700;
-    }
-    .login-brand-title {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin-top: 0.5rem;
-      letter-spacing: -0.02em;
-    }
-    .login-brand-sub {
-      font-size: 0.78rem;
-      color: var(--white-dim);
-      margin-top: 0.25rem;
-    }
-
-    .login-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.75rem;
-    }
-    .login-card::before {
-      content: '';
-      display: block;
-      height: 1px;
-      background: linear-gradient(to right, transparent, rgba(129,212,250,0.3), transparent);
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group { margin-bottom: 1rem; }
-    .form-label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--white-dim);
-      margin-bottom: 0.4rem;
-    }
-    .form-input {
-      width: 100%;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.6rem 0.85rem;
-      font-size: 0.875rem;
-      color: var(--white);
-      transition: border-color 0.15s;
-    }
-    .form-input:focus { border-color: var(--accent); outline: none; background: var(--surface-3); }
-
-    .btn-login {
-      width: 100%;
-      padding: 0.65rem;
-      background: var(--accent);
-      color: var(--bg);
-      border: none;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 0.5rem;
-      transition: background 0.15s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    .btn-login:hover:not(:disabled) { background: #a8e6fd; }
-    .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .login-error {
-      font-size: 0.775rem;
-      color: var(--danger);
-      margin-top: 0.75rem;
-      text-align: center;
-      display: none;
-    }
-    .login-error.show { display: block; }
-
-    .login-footer {
-      text-align: center;
-      margin-top: 1.5rem;
-      font-size: 0.7rem;
-      color: var(--white-dim);
-      opacity: 0.5;
-    }
-
-    .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid rgba(8,13,24,0.3);
-      border-top-color: var(--bg);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="components/base.css" />
+  <link rel="stylesheet" href="components/layout.css" />
+  <link rel="stylesheet" href="components/components.css" />
+  <link rel="stylesheet" href="sections/sections.css" />
 </head>
 <body>
-  <div class="login-wrap">
-    <div class="login-brand">
-      <div class="login-brand-logo">MEA</div>
-      <h1 class="login-brand-title">Console</h1>
-      <p class="login-brand-sub">Portfolio Management Dashboard</p>
-    </div>
 
-    <div class="login-card">
-      <div class="form-group">
-        <label class="form-label" for="email">Email</label>
-        <input class="form-input" type="email" id="email" placeholder="your@email.com" autocomplete="email" />
+<!-- ═══ LOGIN ═══ -->
+<div id="v-login">
+  <div class="login-page">
+    <div class="login-box">
+      <div class="login-brand">
+        <div class="login-logo">MEA</div>
+        <h1 class="login-title">Console</h1>
+        <p class="login-sub">Portfolio Management</p>
       </div>
-      <div class="form-group">
-        <label class="form-label" for="password">Password</label>
-        <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+      <div class="login-card">
+        <div class="field">
+          <label class="label">Email</label>
+          <input class="input" type="email" id="l-email" placeholder="your@email.com" autocomplete="email" />
+        </div>
+        <div class="field">
+          <label class="label">Password</label>
+          <input class="input" type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <button class="btn-login" id="l-btn">Sign In</button>
+        <div class="login-err" id="l-err"></div>
       </div>
-
-      <button class="btn-login" id="login-btn">Sign In</button>
-      <div class="login-error" id="login-error"></div>
+      <div class="login-foot">console.evanalmunawar.my.id</div>
     </div>
-
-    <div class="login-footer">MEA Ecosystem · console.evanalmunawar.my.id</div>
   </div>
+</div>
 
-  <script type="module">
-    import { sb } from './assets/js/supabase.js';
+<!-- ═══ APP ═══ -->
+<div id="v-app" style="display:none">
+<div class="shell">
 
-    // Kalau sudah ada session di localStorage, langsung ke dashboard
-    const raw = localStorage.getItem('sb-ocedszxukzrnmvrecrnx-auth-token');
-    if (raw) {
-      try { if (JSON.parse(raw)?.access_token) window.location.href = 'dashboard.html'; } catch {}
-    }
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div>
+        <div class="sb-logo">MEA</div>
+        <div class="sb-sub">Console</div>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Overview</div>
+      <button class="nav-item" data-r="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span class="nav-lbl">Dashboard</span>
+      </button>
+      <div class="sb-section">Portfolio</div>
+      <button class="nav-item" data-r="about">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-lbl">About</span>
+      </button>
+      <button class="nav-item" data-r="slides">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <span class="nav-lbl">Slides</span>
+      </button>
+      <button class="nav-item" data-r="skills">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span class="nav-lbl">Skills</span>
+      </button>
+      <button class="nav-item" data-r="projects">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span class="nav-lbl">Projects</span>
+      </button>
+      <div class="sb-section">Links</div>
+      <a class="nav-item" href="https://evanalmunawar.my.id" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span class="nav-lbl">Portfolio ↗</span>
+      </a>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar" id="sb-av">M</div>
+        <div class="sb-email" id="sb-em">—</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="logout-btn" style="width:100%;justify-content:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
 
-    const emailEl  = document.getElementById('email');
-    const passEl   = document.getElementById('password');
-    const btnEl    = document.getElementById('login-btn');
-    const errEl    = document.getElementById('login-error');
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-actions">
+      <a href="https://evanalmunawar.my.id" target="_blank" class="btn btn-ghost btn-sm">↗ Site</a>
+      <button class="btn btn-ghost btn-sm btn-icon" id="menu-btn" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </header>
 
-    async function doLogin() {
-      const email    = emailEl.value.trim();
-      const password = passEl.value;
-      if (!email || !password) { showErr('Email dan password wajib diisi.'); return; }
+  <!-- Main -->
+  <main class="main">
 
-      btnEl.disabled = true;
-      btnEl.innerHTML = '<div class="spinner"></div>Signing in...';
-      errEl.classList.remove('show');
+    <!-- Dashboard -->
+    <div class="page" data-p="dashboard">
+      <div class="page-header"><div><h1>Dashboard</h1><p>Ringkasan konten portfolio</p></div></div>
+      <div class="g3" style="margin-bottom:1rem" id="stat-cards"></div>
+      <div class="g2">
+        <div class="card"><div class="card-hd"><h3>Slides</h3></div><div id="dash-slides"></div></div>
+        <div class="card"><div class="card-hd"><h3>Projects</h3></div><div id="dash-projects"></div></div>
+      </div>
+    </div>
 
-      try {
-        await sb.signIn(email, password);
-        window.location.href = 'dashboard.html';
-      } catch (err) {
-        showErr(err.message || 'Login gagal. Cek email & password.');
-        btnEl.disabled = false;
-        btnEl.innerHTML = 'Sign In';
-      }
-    }
+    <!-- About -->
+    <div class="page" data-p="about">
+      <div class="page-header">
+        <div><h1>About</h1><p>Bio dan tags di section About Me</p></div>
+        <button class="btn btn-primary" id="about-save">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+          Save
+        </button>
+      </div>
+      <div class="card">
+        <div style="display:flex;flex-direction:column;gap:0.75rem">
+          <div class="field">
+            <label class="label">Bio <span class="req">*</span></label>
+            <textarea class="textarea" id="about-bio" rows="5" placeholder="Tulis bio singkat..."></textarea>
+          </div>
+          <div class="field">
+            <label class="label">Tags</label>
+            <div class="tags-wrap" id="about-tags-wrap"><input class="tags-input" id="about-tags-input" placeholder="Ketik lalu Enter..." /></div>
+            <span class="hint">Pisah dengan Enter atau koma</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    function showErr(msg) { errEl.textContent = msg; errEl.classList.add('show'); }
+    <!-- Slides -->
+    <div class="page" data-p="slides">
+      <div class="page-header">
+        <div><h1>Slides</h1><p>Tab Education & Venture</p></div>
+        <button class="btn btn-primary" id="sl-add">+ Add</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Tab</th><th>Title</th><th>Period</th><th>Founder</th><th>Order</th><th></th></tr></thead>
+          <tbody id="sl-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
 
-    btnEl.addEventListener('click', doLogin);
-    passEl.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-    emailEl.addEventListener('keydown', e => { if (e.key === 'Enter') passEl.focus(); });
-  </script>
+    <!-- Skills -->
+    <div class="page" data-p="skills">
+      <div class="page-header">
+        <div><h1>Skills</h1><p>Skill cards portfolio</p></div>
+        <button class="btn btn-primary" id="sk-add">+ Add</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Icon</th><th>Name</th><th>Description</th><th>Order</th><th></th></tr></thead>
+          <tbody id="sk-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- Projects -->
+    <div class="page" data-p="projects">
+      <div class="page-header">
+        <div><h1>Projects</h1><p>Selected Projects portfolio</p></div>
+        <button class="btn btn-primary" id="pj-add">+ Add</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Image</th><th>Title</th><th>Description</th><th>Link</th><th>Order</th><th></th></tr></thead>
+          <tbody id="pj-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Slide modal -->
+<div class="modal-bg" id="sl-modal">
+  <div class="modal">
+    <div class="modal-hd"><h3 id="sl-modal-title">Add Slide</h3><button class="btn btn-ghost btn-sm btn-icon" id="sl-modal-x">✕</button></div>
+    <div class="modal-body">
+      <div class="frow">
+        <div class="field"><label class="label">Tab</label><select class="select" id="sl-tab"><option value="Education">Education</option><option value="Venture">Venture</option></select></div>
+        <div class="field"><label class="label">Period</label><input class="input" id="sl-period" placeholder="2025 — Present" /></div>
+      </div>
+      <div class="field"><label class="label">Title <span class="req">*</span></label><input class="input" id="sl-title" placeholder="Judul slide" /></div>
+      <div class="field"><label class="label">Subtitle</label><input class="input" id="sl-subtitle" placeholder="Sub-judul" /></div>
+      <div class="field"><label class="label">Description</label><textarea class="textarea" id="sl-body" rows="3" placeholder="Deskripsi..."></textarea></div>
+      <div class="field"><label class="label">Tags</label><div class="tags-wrap" id="sl-tags-wrap"><input class="tags-input" id="sl-tags-input" placeholder="Ketik lalu Enter..." /></div></div>
+      <div class="frow">
+        <div class="field"><label class="label">Sort Order</label><input class="input" type="number" id="sl-order" value="0" min="0" /></div>
+        <div class="field"><label class="label">Founder Badge</label>
+          <div class="toggle-wrap" style="margin-top:0.4rem">
+            <label class="toggle"><input type="checkbox" id="sl-founder" /><span class="toggle-slider"></span></label>
+            <span class="toggle-label">Tampil badge Founder</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="modal.close('sl-modal')">Batal</button>
+      <button class="btn btn-primary btn-sm" id="sl-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Skill modal -->
+<div class="modal-bg" id="sk-modal">
+  <div class="modal">
+    <div class="modal-hd"><h3 id="sk-modal-title">Add Skill</h3><button class="btn btn-ghost btn-sm btn-icon" id="sk-modal-x">✕</button></div>
+    <div class="modal-body">
+      <div class="field">
+        <label class="label">Icon</label>
+        <input type="hidden" id="sk-icon-val" value="star" />
+        <div class="icon-grid" id="sk-icon-grid"></div>
+        <span class="hint">Klik untuk pilih</span>
+      </div>
+      <div class="field"><label class="label">Name <span class="req">*</span></label><input class="input" id="sk-name" placeholder="Video Editing" /></div>
+      <div class="field"><label class="label">Description</label><textarea class="textarea" id="sk-body" rows="2" placeholder="Deskripsi singkat..."></textarea></div>
+      <div class="field"><label class="label">Sort Order</label><input class="input order-in" type="number" id="sk-order" value="0" min="0" /></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="modal.close('sk-modal')">Batal</button>
+      <button class="btn btn-primary btn-sm" id="sk-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Project modal -->
+<div class="modal-bg" id="pj-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-hd"><h3 id="pj-modal-title">Add Project</h3><button class="btn btn-ghost btn-sm btn-icon" id="pj-modal-x">✕</button></div>
+    <div class="modal-body">
+      <div class="field">
+        <label class="label">Cover Image</label>
+        <div class="upload-zone" id="pj-zone">
+          <input type="file" id="pj-file" accept="image/*" />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <p>Klik atau drag foto</p>
+          <small>Auto compress → WebP ≤500KB</small>
+        </div>
+        <div class="upload-bar-wrap" id="pj-bar-wrap"><div class="upload-bar" id="pj-bar"></div></div>
+        <img class="upload-preview" id="pj-prev" alt="" />
+        <span class="hint" id="pj-info"></span>
+      </div>
+      <div class="frow">
+        <div class="field"><label class="label">Number</label><input class="input" id="pj-num" placeholder="01" /></div>
+        <div class="field"><label class="label">Fallback</label><input class="input" id="pj-fallback" placeholder="FILM" /></div>
+      </div>
+      <div class="field"><label class="label">Title <span class="req">*</span></label><input class="input" id="pj-title" placeholder="Judul project" /></div>
+      <div class="field"><label class="label">Description</label><textarea class="textarea" id="pj-body" rows="2" placeholder="Deskripsi singkat..."></textarea></div>
+      <div class="field"><label class="label">Link</label><input class="input" id="pj-link" placeholder="https://youtu.be/..." /></div>
+      <div class="field"><label class="label">Tags</label><div class="tags-wrap" id="pj-tags-wrap"><input class="tags-input" id="pj-tags-input" placeholder="Ketik lalu Enter..." /></div></div>
+      <div class="field"><label class="label">Sort Order</label><input class="input order-in" type="number" id="pj-order" value="0" min="0" /></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost btn-sm" onclick="modal.close('pj-modal')">Batal</button>
+      <button class="btn btn-primary btn-sm" id="pj-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCRIPTS ═══ -->
+<script src="components/supabase.js"></script>
+<script src="components/router.js"></script>
+<script src="components/ui.js"></script>
+<script src="components/image.js"></script>
+<script src="sections/dashboard.js"></script>
+<script src="sections/about.js"></script>
+<script src="sections/slides.js"></script>
+<script src="sections/skills.js"></script>
+<script src="sections/projects.js"></script>
+
+<script>
+/* ── Boot ── */
+const isLoggedIn = sb.isLoggedIn();
+document.getElementById('v-login').style.display = isLoggedIn ? 'none' : 'block';
+document.getElementById('v-app').style.display   = isLoggedIn ? 'block' : 'none';
+
+if(!isLoggedIn){
+  /* Login form */
+  const em=document.getElementById('l-email'), pw=document.getElementById('l-pass');
+  const btn=document.getElementById('l-btn'), err=document.getElementById('l-err');
+  async function doLogin(){
+    if(!em.value.trim()||!pw.value){ err.textContent='Email & password wajib diisi.'; err.classList.add('show'); return; }
+    btnLoad(btn,true); err.classList.remove('show');
+    try { await sb.signIn(em.value.trim(),pw.value); window.location.reload(); }
+    catch(e){ err.textContent=e.message||'Login gagal.'; err.classList.add('show'); btnLoad(btn,false); }
+  }
+  btn.addEventListener('click',doLogin);
+  pw.addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+  em.addEventListener('keydown',e=>{ if(e.key==='Enter') pw.focus(); });
+
+} else {
+  /* App */
+  const user = sb.getUser();
+  if(user){
+    document.getElementById('sb-av').textContent = (user.email||'M')[0].toUpperCase();
+    document.getElementById('sb-em').textContent = user.email||'';
+  }
+
+  document.getElementById('logout-btn').addEventListener('click', async()=>{
+    await sb.signOut(); window.location.reload();
+  });
+
+  /* Mobile sidebar */
+  const menuBtn=document.getElementById('menu-btn');
+  const sidebar=document.getElementById('sidebar');
+  function chkMob(){ if(window.innerWidth<=720){ menuBtn.style.display='flex'; } else { menuBtn.style.display='none'; sidebar.classList.remove('open'); } }
+  chkMob(); window.addEventListener('resize',chkMob);
+  menuBtn.addEventListener('click',()=>sidebar.classList.toggle('open'));
+  document.addEventListener('click',e=>{ if(window.innerWidth<=720&&sidebar.classList.contains('open')&&!sidebar.contains(e.target)&&e.target!==menuBtn) sidebar.classList.remove('open'); });
+
+  /* Nav clicks */
+  document.querySelectorAll('.nav-item[data-r]').forEach(el=>{
+    el.addEventListener('click',()=>router.go(el.dataset.r));
+  });
+
+  /* Global helper for order inputs */
+  window.patchOrder = async(table,id,val)=>{
+    try { await sb.patch(table,id,{sort_order:parseInt(val)||0}); toast.ok('Urutan disimpan.'); }
+    catch(e){ toast.err('Gagal update urutan.'); }
+  };
+
+  /* Init modules */
+  initAbout();
+  initSlides();
+  initSkills();
+  initProjects();
+
+  /* Router */
+  router
+    .on('dashboard', loadDashboard)
+    .on('about',     ()=>{})
+    .on('slides',    ()=>{})
+    .on('skills',    ()=>{})
+    .on('projects',  ()=>{})
+    .start();
+
+  if(!window.location.hash||window.location.hash==='#') router.go('dashboard');
+}
+</script>
 </body>
 </html>
