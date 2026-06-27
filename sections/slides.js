@@ -5,6 +5,7 @@ function initSlides(){
   document.getElementById('sl-add').addEventListener('click', ()=>openSlide());
   document.getElementById('sl-modal-x').addEventListener('click', ()=>modal.close('sl-modal'));
   document.getElementById('sl-save').addEventListener('click', saveSlide);
+  document.getElementById('sl-delete').addEventListener('click', ()=>delSlide(_slideId));
   loadSlides();
 }
 
@@ -15,24 +16,25 @@ async function loadSlides(){
   } catch(e){ toast.err('Gagal load slides: '+e.message); }
 }
 
+function padOrder(n){ return String(n||0).padStart(2,'0'); }
+
 function renderSlides(){
   const tb = document.getElementById('sl-tbody');
   if(!tb) return;
   if(!_slides.length){
-    tb.innerHTML='<tr><td colspan="6"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/></svg><p>Belum ada slide</p></div></td></tr>';
+    tb.innerHTML='<tr><td colspan="5"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/></svg><p>Belum ada slide. Klik "+ Add".</p></div></td></tr>';
     return;
   }
   tb.innerHTML = _slides.map(s=>`
     <tr>
+      <td><span class="cell-order">${padOrder(s.sort_order)}</span></td>
+      <td>
+        <div class="cell-title">${s.title}</div>
+        <div class="cell-sub">${s.subtitle||''}</div>
+      </td>
+      <td><div class="cell-sub" style="max-width:110px">${s.period||'—'}</div></td>
       <td><span class="badge ${s.tab==='Education'?'badge-blue':'badge-green'}">${s.tab}</span></td>
-      <td><div style="font-weight:500;font-size:0.8rem">${s.title}</div><div class="td-sub">${s.subtitle}</div></td>
-      <td style="font-size:0.75rem;color:var(--muted)">${s.period}</td>
-      <td>${s.founder?'<span class="badge badge-green"><span class="badge-dot"></span>Ya</span>':'<span style="color:var(--muted);font-size:0.75rem">—</span>'}</td>
-      <td><input class="input order-in" type="number" value="${s.sort_order}" min="0" onchange="patchOrder('slides',${s.id},this.value)" /></td>
-      <td><div class="td-actions">
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="openSlide(${s.id})" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="delSlide(${s.id})" title="Hapus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
-      </div></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openSlide(${s.id})">Ubah</button></td>
     </tr>`).join('');
 }
 
@@ -47,12 +49,13 @@ function openSlide(id){
   document.getElementById('sl-body').value     = d?.body     ||'';
   document.getElementById('sl-order').value    = d?.sort_order ?? _slides.length;
   document.getElementById('sl-founder').checked= d?.founder  ||false;
+  document.getElementById('sl-delete').style.display = d ? 'flex' : 'none';
   _slideTags.set(d?.tags||[]);
   modal.open('sl-modal');
 }
 
 async function saveSlide(){
-  const btn   = document.getElementById('sl-save');
+  const btn = document.getElementById('sl-save');
   const title = document.getElementById('sl-title').value.trim();
   if(!title){ toast.err('Title wajib diisi.'); return; }
   btnLoad(btn,true);
@@ -77,7 +80,8 @@ async function saveSlide(){
 }
 
 async function delSlide(id){
+  if(!id) return;
   if(!await confirm('Hapus slide ini?')) return;
-  try { await sb.del('slides',id); toast.ok('Dihapus.'); await loadSlides(); }
+  try { await sb.del('slides',id); toast.ok('Dihapus.'); modal.close('sl-modal'); await loadSlides(); }
   catch(e){ toast.err('Gagal: '+e.message); }
 }

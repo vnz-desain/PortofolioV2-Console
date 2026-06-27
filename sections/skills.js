@@ -27,42 +27,35 @@ function iSVG(n,s=16){ return `<svg viewBox="0 0 24 24" fill="none" stroke="curr
 let _skills=[], _skillId=null;
 
 function initSkills(){
-  // build icon picker
   const grid = document.getElementById('sk-icon-grid');
   if(grid) grid.innerHTML = Object.keys(ICONS).map(n=>
     `<button type="button" class="icon-opt" data-icon="${n}" title="${n}" onclick="pickIcon('${n}')">${iSVG(n,16)}</button>`
   ).join('');
-
   document.getElementById('sk-add').addEventListener('click', ()=>openSkill());
   document.getElementById('sk-modal-x').addEventListener('click', ()=>modal.close('sk-modal'));
   document.getElementById('sk-save').addEventListener('click', saveSkill);
+  document.getElementById('sk-delete').addEventListener('click', ()=>delSkill(_skillId));
   loadSkills();
 }
 
 async function loadSkills(){
-  try {
-    _skills = await sb.get('skills','sort_order.asc');
-    renderSkills();
-  } catch(e){ toast.err('Gagal load skills: '+e.message); }
+  try { _skills = await sb.get('skills','sort_order.asc'); renderSkills(); }
+  catch(e){ toast.err('Gagal load skills: '+e.message); }
 }
 
 function renderSkills(){
   const tb = document.getElementById('sk-tbody');
   if(!tb) return;
   if(!_skills.length){
-    tb.innerHTML='<tr><td colspan="5"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><p>Belum ada skill</p></div></td></tr>';
+    tb.innerHTML='<tr><td colspan="4"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><p>Belum ada skill.</p></div></td></tr>';
     return;
   }
   tb.innerHTML = _skills.map(s=>`
     <tr>
-      <td><div class="skill-prev">${iSVG(s.icon,16)}<code style="font-size:0.65rem;color:var(--muted)">${s.icon}</code></div></td>
-      <td style="font-weight:500;font-size:0.8rem">${s.name}</td>
-      <td style="font-size:0.75rem;color:var(--muted);max-width:220px">${s.body}</td>
-      <td><input class="input order-in" type="number" value="${s.sort_order}" min="0" onchange="patchOrder('skills',${s.id},this.value)" /></td>
-      <td><div class="td-actions">
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="openSkill(${s.id})">${iSVG('edit',13)}</button>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="delSkill(${s.id})">${iSVG('zap',13)}</button>
-      </div></td>
+      <td><span class="cell-order">${padOrder(s.sort_order)}</span></td>
+      <td><div class="sk-icon">${iSVG(s.icon,20)}</div></td>
+      <td><div class="cell-title">${s.name}</div></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openSkill(${s.id})">Ubah</button></td>
     </tr>`).join('');
 }
 
@@ -78,12 +71,13 @@ function openSkill(id){
   document.getElementById('sk-name').value  = d?.name  ||'';
   document.getElementById('sk-body').value  = d?.body  ||'';
   document.getElementById('sk-order').value = d?.sort_order ?? _skills.length;
+  document.getElementById('sk-delete').style.display = d ? 'flex' : 'none';
   pickIcon(d?.icon||'star');
   modal.open('sk-modal');
 }
 
 async function saveSkill(){
-  const btn  = document.getElementById('sk-save');
+  const btn = document.getElementById('sk-save');
   const name = document.getElementById('sk-name').value.trim();
   if(!name){ toast.err('Nama wajib diisi.'); return; }
   btnLoad(btn,true);
@@ -99,7 +93,10 @@ async function saveSkill(){
 }
 
 async function delSkill(id){
+  if(!id) return;
   if(!await confirm('Hapus skill ini?')) return;
-  try { await sb.del('skills',id); toast.ok('Dihapus.'); await loadSkills(); }
+  try { await sb.del('skills',id); toast.ok('Dihapus.'); modal.close('sk-modal'); await loadSkills(); }
   catch(e){ toast.err('Gagal: '+e.message); }
 }
+
+function padOrder(n){ return String(n||0).padStart(2,'0'); }
