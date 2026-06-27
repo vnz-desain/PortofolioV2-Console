@@ -78,51 +78,87 @@
 .upload-bar-wrap { height: 2px; background: var(--surface2); border-radius: 2px; margin-top: 0.6rem; display: none; overflow: hidden; }
 .upload-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s ease; width: 0%; }
 
-/* ── Table — desktop ── */
+/* ── Table ── */
 .tbl-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  table-layout: fixed;
+}
 thead tr { border-bottom: 1px solid var(--border); }
-th { padding: 0.55rem 0.75rem; text-align: left; font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
-td { padding: 0.65rem 0.75rem; border-bottom: 1px solid rgba(129,212,250,0.05); vertical-align: middle; }
+th {
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+}
+td {
+  padding: 0.6rem 0.65rem;
+  border-bottom: 1px solid rgba(129,212,250,0.05);
+  vertical-align: middle;
+  overflow: hidden;
+}
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover td { background: rgba(255,255,255,0.015); }
-.td-actions { display: flex; gap: 0.35rem; }
 
-/* ── Table mobile → flat row ── */
+/* Slides table: # | Title | Period | Tab | Aksi */
+#sl-tbody tr td:nth-child(1),
+#sl-tbody + thead th:nth-child(1) { width: 36px; }
+#sl-tbody tr td:nth-child(3) { width: 100px; }
+#sl-tbody tr td:nth-child(4) { width: 80px; }
+#sl-tbody tr td:nth-child(5) { width: 58px; text-align: right; }
+
+/* Skills table: # | Icon | Name | Aksi */
+#sk-tbody tr td:nth-child(1) { width: 36px; }
+#sk-tbody tr td:nth-child(2) { width: 36px; }
+#sk-tbody tr td:nth-child(4) { width: 58px; text-align: right; }
+
+/* Projects table: # | Image | Title | Link | Aksi */
+#pj-tbody tr td:nth-child(1) { width: 36px; }
+#pj-tbody tr td:nth-child(2) { width: 60px; }
+#pj-tbody tr td:nth-child(4) { width: 44px; text-align: center; }
+#pj-tbody tr td:nth-child(5) { width: 58px; text-align: right; }
+
+/* ── Mobile: compact row, NO overflow ── */
 @media (max-width: 640px) {
+  table { table-layout: auto; }
   .tbl-wrap { overflow: visible; }
-  table, thead, tbody, tr, th, td { display: block; }
-  thead { display: none; }
+  table, thead, tbody, th, td { display: block; }
+  thead tr { display: flex; padding: 0 0.65rem; border-bottom: 1px solid var(--border); }
+  thead th { flex: 1; padding: 0.4rem 0.3rem; }
+  thead th:first-child { flex: 0 0 32px; }
+  thead th:last-child  { flex: 0 0 54px; text-align: right; }
 
   tbody tr {
     display: flex;
     align-items: center;
-    gap: 0.65rem;
-    padding: 0.65rem 0.75rem;
-    border-bottom: 1px solid rgba(129,212,250,0.06);
+    gap: 0.5rem;
+    padding: 0.6rem 0.65rem;
+    border-bottom: 1px solid rgba(129,212,250,0.05);
   }
   tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: rgba(255,255,255,0.015); }
-  td { padding: 0; border: none; font-size: 0.8rem; flex-shrink: 0; }
+  td { padding: 0; border: none; }
 
-  /* col 1 — order / # */
-  td:nth-child(1) { width: 28px; flex-shrink: 0; }
+  /* col 1 — order */
+  td:nth-child(1) { flex: 0 0 32px; }
 
-  /* col 2 — icon / image */
-  td:nth-child(2) { flex-shrink: 0; }
+  /* col 2 — icon/image */
+  td:nth-child(2) { flex: 0 0 auto; }
 
-  /* col 3 — title (fill remaining space) */
+  /* col 3 — title (expand) */
   td:nth-child(3) { flex: 1; min-width: 0; }
 
-  /* col 4 — period / link (hide on mobile, shown inside title) */
+  /* col 4 — period/link/tab — hide */
   td:nth-child(4) { display: none; }
 
-  /* col 5 — aksi (always visible, auto width) */
-  td:nth-child(5) { flex-shrink: 0; margin-left: auto; }
-
-  /* slides: 5 cols — show tab as badge under title */
-  /* projects: show link btn */
-  td:nth-child(4).show-mobile { display: block; flex-shrink: 0; }
+  /* col 5 — aksi */
+  td:nth-child(5) { flex: 0 0 54px; text-align: right; }
 }
 
 /* ── Badge ── */
