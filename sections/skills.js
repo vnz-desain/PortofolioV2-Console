@@ -52,10 +52,10 @@ function renderSkills(){
   }
   tb.innerHTML = _skills.map(s=>`
     <tr>
-      <td><span class="cell-order">${padOrder(s.sort_order)}</span></td>
-      <td><div class="sk-icon">${iSVG(s.icon,20)}</div></td>
+      <td style="width:36px"><span class="cell-order">${padOrder(s.sort_order)}</span></td>
+      <td style="width:36px"><div class="sk-icon">${iSVG(s.icon,20)}</div></td>
       <td><div class="cell-title">${s.name}</div></td>
-      <td><button class="btn btn-ghost btn-sm" onclick="openSkill(${s.id})">Ubah</button></td>
+      <td style="width:60px;text-align:right"><button class="btn btn-ghost btn-sm" onclick="openSkill(${s.id})">Ubah</button></td>
     </tr>`).join('');
 }
 

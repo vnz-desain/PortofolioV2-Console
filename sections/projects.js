@@ -48,11 +48,11 @@ function renderProjects(){
   }
   tb.innerHTML=_projects.map(p=>`
     <tr>
-      <td><span class="cell-order">${padOrder(p.sort_order)}</span></td>
-      <td><div class="pj-thumb">${p.image_url?`<img src="${p.image_url}" alt="" onerror="this.style.display='none'" />`:(p.fallback||'IMG')}</div></td>
+      <td style="width:36px"><span class="cell-order">${padOrder(p.sort_order)}</span></td>
+      <td style="width:60px"><div class="pj-thumb">${p.image_url?`<img src="${p.image_url}" alt="" onerror="this.style.display='none'" />`:(p.fallback||'IMG')}</div></td>
       <td><div class="cell-title">${p.title}</div></td>
-      <td>${p.link?`<a href="${p.link}" target="_blank" class="btn btn-ghost btn-sm" style="font-size:0.72rem;padding:0.3rem 0.6rem">↗</a>`:'<span style="color:var(--muted);font-size:0.75rem">—</span>'}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="openProj(${p.id})">Ubah</button></td>
+      <td style="width:48px">${p.link?`<a href="${p.link}" target="_blank" class="btn btn-ghost btn-sm btn-icon" title="Buka link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`:'<span style="color:var(--muted);padding:0 0.4rem">—</span>'}</td>
+      <td style="width:60px;text-align:right"><button class="btn btn-ghost btn-sm" onclick="openProj(${p.id})">Ubah</button></td>
     </tr>`).join('');
 }
 

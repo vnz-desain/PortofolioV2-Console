@@ -27,14 +27,14 @@ function renderSlides(){
   }
   tb.innerHTML = _slides.map(s=>`
     <tr>
-      <td><span class="cell-order">${padOrder(s.sort_order)}</span></td>
+      <td style="width:36px"><span class="cell-order">${padOrder(s.sort_order)}</span></td>
       <td>
         <div class="cell-title">${s.title}</div>
         <div class="cell-sub">${s.subtitle||''}</div>
       </td>
-      <td><div class="cell-sub" style="max-width:110px">${s.period||'—'}</div></td>
-      <td><span class="badge ${s.tab==='Education'?'badge-blue':'badge-green'}">${s.tab}</span></td>
-      <td><button class="btn btn-ghost btn-sm" onclick="openSlide(${s.id})">Ubah</button></td>
+      <td style="width:110px"><div class="cell-sub">${s.period||'—'}</div></td>
+      <td style="width:80px"><span class="badge ${s.tab==='Education'?'badge-blue':'badge-green'}">${s.tab}</span></td>
+      <td style="width:60px;text-align:right"><button class="btn btn-ghost btn-sm" onclick="openSlide(${s.id})">Ubah</button></td>
     </tr>`).join('');
 }
 
