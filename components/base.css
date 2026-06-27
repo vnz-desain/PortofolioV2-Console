@@ -14,13 +14,13 @@
   --mono:     'JetBrains Mono', monospace;
   --r:        6px;
   --t:        160ms ease;
-  --sw:       220px;
-  --th:       52px;
+  --sw:       240px;
+  --th:       56px;
 }
 
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 14px; -webkit-text-size-adjust: 100%; }
+html { font-size: 15px; -webkit-text-size-adjust: 100%; }
 body { font-family: var(--sans); background: var(--bg); color: var(--white); line-height: 1.5; min-height: 100vh; -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-decoration: none; }
 button { cursor: pointer; font-family: inherit; font-size: inherit; }
@@ -36,6 +36,6 @@ img { display: block; max-width: 100%; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 2px; }
 
-/* ── Fade-in animation (ringan) ── */
-@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
-.fade-up { animation: fadeUp 0.22s ease both; }
+/* ── Fade animation ── */
+@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.fade-up { animation: fadeUp 0.2s ease both; }
