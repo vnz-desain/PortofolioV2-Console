@@ -220,3 +220,47 @@ tbody tr:hover td { background: rgba(255,255,255,0.015); }
 .btn-login:hover:not(:disabled) { background: #a8e6fd; }
 .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
 .login-foot  { text-align: center; margin-top: 1.25rem; font-size: 0.67rem; color: var(--muted); opacity: 0.4; }
+
+/* ── Mobile table override — buang table, pakai div ── */
+@media (max-width: 640px) {
+  .tbl-wrap table,
+  .tbl-wrap thead,
+  .tbl-wrap tbody,
+  .tbl-wrap tr,
+  .tbl-wrap th,
+  .tbl-wrap td { display: block; }
+
+  .tbl-wrap thead { display: none; }
+  .tbl-wrap table { table-layout: auto; }
+
+  .tbl-wrap tbody tr {
+    display: flex !important;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(129,212,250,0.06);
+    width: 100%;
+  }
+  .tbl-wrap tbody tr:last-child { border-bottom: none; }
+  .tbl-wrap td {
+    padding: 0 !important;
+    border: none !important;
+    width: auto !important;
+    flex-shrink: 0;
+  }
+
+  /* col 1 — order: fixed 28px */
+  .tbl-wrap td:nth-child(1) { width: 28px !important; text-align: center; }
+
+  /* col 2 — icon/image: auto */
+  .tbl-wrap td:nth-child(2) { flex-shrink: 0; }
+
+  /* col 3 — title: fills space */
+  .tbl-wrap td:nth-child(3) { flex: 1 !important; min-width: 0; overflow: hidden; }
+
+  /* col 4 — period/link/tab: HIDE */
+  .tbl-wrap td:nth-child(4) { display: none !important; }
+
+  /* col 5 — aksi: stick right, no margin-left auto */
+  .tbl-wrap td:nth-child(5) { flex-shrink: 0; width: auto !important; }
+}
