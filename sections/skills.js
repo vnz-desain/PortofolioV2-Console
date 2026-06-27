@@ -22,81 +22,79 @@ const ICONS = {
   'settings':'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'
 };
 
-function iSVG(n,s=16){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="${s}" height="${s}">${ICONS[n]||ICONS.star}</svg>`; }
+function iSVG(n,s){ s=s||16; return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="'+s+'" height="'+s+'">'+(ICONS[n]||ICONS.star)+'</svg>'; }
+function padOrder(n){ return String(n||0).padStart(2,'0'); }
 
 let _skills=[], _skillId=null;
 
 function initSkills(){
-  const grid = document.getElementById('sk-icon-grid');
-  if(grid) grid.innerHTML = Object.keys(ICONS).map(n=>
-    `<button type="button" class="icon-opt" data-icon="${n}" title="${n}" onclick="pickIcon('${n}')">${iSVG(n,16)}</button>`
-  ).join('');
-  document.getElementById('sk-add').addEventListener('click', ()=>openSkill());
-  document.getElementById('sk-modal-x').addEventListener('click', ()=>modal.close('sk-modal'));
-  document.getElementById('sk-save').addEventListener('click', saveSkill);
-  document.getElementById('sk-delete').addEventListener('click', ()=>delSkill(_skillId));
+  var grid=document.getElementById('sk-icon-grid');
+  if(grid) grid.innerHTML=Object.keys(ICONS).map(function(n){ return '<button type="button" class="icon-opt" data-icon="'+n+'" title="'+n+'" onclick="pickIcon(\''+n+'\'">'+iSVG(n,16)+'</button>'; }).join('');
+  document.getElementById('sk-add').addEventListener('click',function(){ openSkill(); });
+  document.getElementById('sk-modal-x').addEventListener('click',function(){ modal.close('sk-modal'); });
+  document.getElementById('sk-save').addEventListener('click',saveSkill);
+  document.getElementById('sk-delete').addEventListener('click',function(){ delSkill(_skillId); });
   loadSkills();
 }
 
 async function loadSkills(){
-  try { _skills = await sb.get('skills','sort_order.asc'); renderSkills(); }
+  try{ _skills=await sb.get('skills','sort_order.asc'); renderSkills(); }
   catch(e){ toast.err('Gagal load skills: '+e.message); }
 }
 
 function renderSkills(){
-  const tb = document.getElementById('sk-tbody');
-  if(!tb) return;
+  var wrap=document.getElementById('sk-list');
+  if(!wrap) return;
   if(!_skills.length){
-    tb.innerHTML='<tr><td colspan="4"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><p>Belum ada skill.</p></div></td></tr>';
+    wrap.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><p>Belum ada skill.</p></div>';
     return;
   }
-  tb.innerHTML = _skills.map(s=>`
-    <tr>
-      <td style="width:36px"><span class="cell-order">${padOrder(s.sort_order)}</span></td>
-      <td style="width:36px"><div class="sk-icon">${iSVG(s.icon,20)}</div></td>
-      <td><div class="cell-title">${s.name}</div></td>
-      <td style="width:60px;text-align:right"><button class="btn btn-ghost btn-sm" onclick="openSkill(${s.id})">Ubah</button></td>
-    </tr>`).join('');
+  wrap.innerHTML=_skills.map(function(s){
+    return '<div class="row-item" onclick="openSkill('+s.id+')">'
+      +'<span class="row-order">'+padOrder(s.sort_order)+'</span>'
+      +'<span class="row-icon" style="color:var(--accent)">'+iSVG(s.icon,20)+'</span>'
+      +'<span class="row-title">'+s.name+'</span>'
+      +'<span class="row-action"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openSkill('+s.id+')">Ubah</button></span>'
+      +'</div>';
+  }).join('');
 }
 
 function pickIcon(n){
-  document.getElementById('sk-icon-val').value = n;
-  document.querySelectorAll('.icon-opt').forEach(el=>el.classList.toggle('on', el.dataset.icon===n));
+  document.getElementById('sk-icon-val').value=n;
+  document.querySelectorAll('.icon-opt').forEach(function(el){ el.classList.toggle('on',el.dataset.icon===n); });
 }
 
 function openSkill(id){
-  _skillId = id||null;
-  const d = id ? _skills.find(s=>s.id===id) : null;
-  document.getElementById('sk-modal-title').textContent = d?'Edit Skill':'Add Skill';
-  document.getElementById('sk-name').value  = d?.name  ||'';
-  document.getElementById('sk-body').value  = d?.body  ||'';
-  document.getElementById('sk-order').value = d?.sort_order ?? _skills.length;
-  document.getElementById('sk-delete').style.display = d ? 'flex' : 'none';
-  pickIcon(d?.icon||'star');
+  _skillId=id||null;
+  var d=id?_skills.find(function(s){ return s.id===id; }):null;
+  document.getElementById('sk-modal-title').textContent=d?'Edit Skill':'Add Skill';
+  document.getElementById('sk-name').value=d&&d.name||'';
+  document.getElementById('sk-body').value=d&&d.body||'';
+  document.getElementById('sk-order').value=d&&d.sort_order!=null?d.sort_order:_skills.length;
+  document.getElementById('sk-delete').style.display=d?'flex':'none';
+  pickIcon(d&&d.icon||'star');
   modal.open('sk-modal');
 }
 
 async function saveSkill(){
-  const btn = document.getElementById('sk-save');
-  const name = document.getElementById('sk-name').value.trim();
+  var btn=document.getElementById('sk-save');
+  var name=document.getElementById('sk-name').value.trim();
   if(!name){ toast.err('Nama wajib diisi.'); return; }
   btnLoad(btn,true);
-  try {
-    const p = { icon:document.getElementById('sk-icon-val').value||'star', name, body:document.getElementById('sk-body').value.trim(), sort_order:parseInt(document.getElementById('sk-order').value)||0 };
+  try{
+    var p={icon:document.getElementById('sk-icon-val').value||'star',name:name,body:document.getElementById('sk-body').value.trim(),sort_order:parseInt(document.getElementById('sk-order').value)||0};
     if(_skillId) await sb.patch('skills',_skillId,p);
     else await sb.post('skills',p);
     toast.ok(_skillId?'Skill diupdate!':'Skill ditambahkan!');
     modal.close('sk-modal');
     await loadSkills();
-  } catch(e){ toast.err('Gagal: '+e.message); }
-  finally { btnLoad(btn,false); }
+  }catch(e){ toast.err('Gagal: '+e.message); }
+  finally{ btnLoad(btn,false); }
 }
 
 async function delSkill(id){
   if(!id) return;
   if(!await confirm('Hapus skill ini?')) return;
-  try { await sb.del('skills',id); toast.ok('Dihapus.'); modal.close('sk-modal'); await loadSkills(); }
+  try{ await sb.del('skills',id); toast.ok('Dihapus.'); modal.close('sk-modal'); await loadSkills(); }
   catch(e){ toast.err('Gagal: '+e.message); }
 }
-
-function padOrder(n){ return String(n||0).padStart(2,'0'); }
