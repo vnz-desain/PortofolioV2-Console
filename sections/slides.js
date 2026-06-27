@@ -32,9 +32,9 @@ function renderSlides(){
         <div class="cell-title">${s.title}</div>
         <div class="cell-sub">${s.subtitle||''}</div>
       </td>
-      <td style="width:110px"><div class="cell-sub">${s.period||'—'}</div></td>
+      <td style="width:100px"><div class="cell-sub" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.period||'—'}</div></td>
       <td style="width:80px"><span class="badge ${s.tab==='Education'?'badge-blue':'badge-green'}">${s.tab}</span></td>
-      <td style="width:60px;text-align:right"><button class="btn btn-ghost btn-sm" onclick="openSlide(${s.id})">Ubah</button></td>
+      <td style="width:58px;text-align:right"><button class="btn btn-ghost btn-sm" onclick="openSlide(${s.id})">Ubah</button></td>
     </tr>`).join('');
 }
 
