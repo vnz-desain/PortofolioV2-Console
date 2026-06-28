@@ -79,7 +79,6 @@
       <button class="nav-item" data-r="gallery">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         <span class="nav-lbl">Gallery</span>
-        <span class="nav-badge">Phase 3</span>
       </button>
       <button class="nav-item" data-r="research">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
@@ -209,11 +208,12 @@
 
     <!-- Gallery (Phase 3) -->
     <div class="page" data-p="gallery">
-      <div class="page-header"><div><h1>Gallery</h1><p>gallery.evanalmunawar.my.id</p></div></div>
-      <div class="coming-card">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        <h3>Coming — Phase 3</h3>
-        <p>Integrasi Google Drive untuk manage media gallery. Ada code yang perlu diperbaiki dulu.</p>
+      <div class="page-header">
+        <div><h1>Gallery</h1><p>gallery.evanalmunawar.my.id · Google Drive</p></div>
+        <button class="btn btn-primary" id="gf-add">+ Folder</button>
+      </div>
+      <div class="card">
+        <div class="row-list" id="gf-list"></div>
       </div>
     </div>
 
@@ -386,6 +386,63 @@
   </div>
 </div>
 
+<!-- Gallery Folder modal -->
+<div class="modal-bg" id="gf-modal">
+  <div class="modal">
+    <div class="modal-hd"><h3 id="gf-modal-title">Add Folder</h3><button class="btn btn-ghost btn-sm btn-icon" id="gf-modal-x">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label class="label">Nama Folder <span class="req">*</span></label><input class="input" id="gf-name" placeholder="Class Meeting" /></div>
+      <div class="field"><label class="label">Deskripsi</label><textarea class="textarea" id="gf-desc" rows="2" placeholder="Deskripsi singkat..."></textarea></div>
+      <div class="field">
+        <label class="label">Drive Folder ID <span class="req">*</span></label>
+        <input class="input" id="gf-drive-id" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs" />
+        <span class="hint">Ambil dari URL Drive: drive.google.com/drive/folders/<strong>[ID INI]</strong></span>
+      </div>
+      <div class="field"><label class="label">Cover URL</label><input class="input" id="gf-cover" placeholder="https://... (opsional)" /></div>
+      <div class="field"><label class="label">Urutan</label><input class="input order-in" type="number" id="gf-order" value="0" min="0" /></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-danger btn-sm" id="gf-delete" style="display:none">Hapus</button>
+      <div class="modal-ft-right">
+        <button class="btn btn-ghost btn-sm" onclick="modal.close('gf-modal')">Batal</button>
+        <button class="btn btn-primary btn-sm" id="gf-save">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Gallery Photos modal -->
+<div class="modal-bg" id="gp-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-hd">
+      <h3 id="gp-folder-name">Foto</h3>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="modal.close('gp-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Upload zone -->
+      <div class="upload-zone" id="gp-upload-zone" style="padding:0.85rem">
+        <input type="file" id="gp-upload-file" accept="image/*" />
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p>Upload foto baru</p>
+        <small>Auto compress → WebP ≤500KB</small>
+      </div>
+      <input type="hidden" id="gp-drive-id-val" />
+      <!-- Actions -->
+      <div style="display:flex;gap:0.5rem;margin-top:0.5rem">
+        <button class="btn btn-ghost btn-sm" id="gp-sync-btn" onclick="syncFromDrive()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Sync dari Drive
+        </button>
+        <button class="btn btn-primary btn-sm" id="gp-upload-btn" onclick="document.getElementById('gp-upload-file').click()">
+          + Upload Foto
+        </button>
+      </div>
+      <!-- Photo grid -->
+      <div class="gp-grid" id="gp-grid"></div>
+    </div>
+  </div>
+</div>
+
 <!-- SCRIPTS -->
 <script src="components/supabase.js"></script>
 <script src="components/router.js"></script>
@@ -397,6 +454,7 @@
 <script src="sections/skills.js"></script>
 <script src="sections/projects.js"></script>
 <script src="sections/playlist.js"></script>
+<script src="sections/gallery.js"></script>
 <script>
 const isLoggedIn = sb.isLoggedIn();
 document.getElementById('v-login').style.display = isLoggedIn ? 'none'  : 'block';
@@ -452,6 +510,8 @@ if(!isLoggedIn){
   initSkills();
   initProjects();
   initPlaylist();
+  initGallery();
+  initPhotoUpload();
 
   /* Router */
   router
