@@ -219,19 +219,19 @@ async function deletePhoto(photoId, storagePath) {
 function _initUploadZone() {
   try {
     const oldZone = document.getElementById('gp-upload-zone');
-    const oldFi   = document.getElementById('gp-upload-file');
     const oldBtn  = document.getElementById('gp-upload-btn');
-    if (!oldZone || !oldFi || !oldBtn) {
-      console.error('[gallery] _initUploadZone: elemen tidak ditemukan', { oldZone, oldFi, oldBtn });
+    if (!oldZone || !oldBtn) {
+      console.error('[gallery] _initUploadZone: elemen tidak ditemukan', { oldZone, oldBtn });
       toast.err('Gagal init upload zone — cek modal HTML.');
       return;
     }
 
-    // Clone untuk bersihkan event listener lama
+    // gp-upload-file ada DI DALAM gp-upload-zone — clone sekali saja
+    // lalu replace, baru ambil ulang elemen2 dari clone yg sudah live di DOM.
     const zone = oldZone.cloneNode(true);
-    const fi   = oldFi.cloneNode(true);
     oldZone.replaceWith(zone);
-    oldFi.replaceWith(fi);
+
+    const fi = document.getElementById('gp-upload-file'); // sekarang ini elemen yg live
 
     zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag'); });
     zone.addEventListener('dragleave', ()  => zone.classList.remove('drag'));
@@ -245,7 +245,6 @@ function _initUploadZone() {
       if (fi.files[0]) _openCrop(fi.files[0]);
     });
 
-    // Re-fetch tombol upload (DOM tidak diclone, masih elemen asli)
     document.getElementById('gp-upload-btn').onclick =
       () => document.getElementById('gp-upload-file').click();
   } catch (e) {
