@@ -253,73 +253,176 @@ function _initUploadZone() {
   }
 }
 
-/* ══ CROP MODAL ═════════════════════════════════════════ */
-let _cImg = null, _cFile = null, _cBlob = null;
+/* ══ CROP MODAL ═════════════════════════════════════════
+   Flow baru: upload file → crop (drag+resize, mouse+touch)
+   → klik "Upload" → auto compress di background → kirim ke Storage
+══════════════════════════════════════════════════════ */
+let _cImg = null, _cFile = null;
 let _cX = 0, _cY = 0, _cW = 0, _cH = 0;
-let _drag = false, _dox = 0, _doy = 0;
+let _cRatio = 1;                       // display:natural scale
+let _action = null;                    // 'move' | 'tl' | 'tr' | 'bl' | 'br' | null
+let _startPt = { x: 0, y: 0 };
+let _startBox = { x: 0, y: 0, w: 0, h: 0 };
+
+const HANDLE_SIZE = 18;                // hit-area px (display coords), cukup besar utk jari
 
 function _openCrop(file) {
-  _cFile = file; _cBlob = null;
+  _cFile = file;
   const url = URL.createObjectURL(file);
-  const img  = new Image();
+  const img = new Image();
   img.onload = () => {
     _cImg = img;
     URL.revokeObjectURL(url);
     _cX = 0; _cY = 0; _cW = img.naturalWidth; _cH = img.naturalHeight;
     document.getElementById('gc-name').value  = file.name.replace(/\.[^.]+$/, '');
     document.getElementById('gc-order').value = _photos.length;
-    document.getElementById('gc-upload').disabled = true;
-    document.getElementById('gc-preview').style.display = 'none';
     document.getElementById('gc-size').textContent = '';
+    document.getElementById('gc-upload').disabled  = false;
     _drawCrop();
+    _bindCropEvents();
     modal.open('gc-modal');
   };
+  img.onerror = () => toast.err('Gagal membaca gambar.');
   img.src = url;
 }
 
 function _drawCrop() {
-  const canvas  = document.getElementById('gc-canvas');
-  const MAXDISP = 460;
-  const ratio   = Math.min(MAXDISP / _cImg.naturalWidth, MAXDISP / _cImg.naturalHeight, 1);
+  const canvas = document.getElementById('gc-canvas');
+  if (!canvas || !_cImg) return;
+  const wrap   = canvas.parentElement;
+  const MAXW   = Math.min(wrap.clientWidth || 460, 520);
+  const ratio  = Math.min(MAXW / _cImg.naturalWidth, MAXW / _cImg.naturalHeight, 1);
+  _cRatio = ratio;
   canvas.width  = Math.round(_cImg.naturalWidth  * ratio);
   canvas.height = Math.round(_cImg.naturalHeight * ratio);
 
   const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(_cImg, 0, 0, canvas.width, canvas.height);
 
   const cx = _cX * ratio, cy = _cY * ratio, cw = _cW * ratio, ch = _cH * ratio;
-  ctx.fillStyle = 'rgba(0,0,0,0.5)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(_cImg, _cX, _cY, _cW, _cH, cx, cy, cw, ch);
+
+  // Dim area luar crop
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.beginPath();
+  ctx.rect(0, 0, canvas.width, canvas.height);
+  ctx.rect(cx, cy, cw, ch);
+  ctx.fill('evenodd');
+
+  // Border crop
   ctx.strokeStyle = '#81D4FA';
-  ctx.lineWidth   = 2;
+  ctx.lineWidth = 2;
   ctx.strokeRect(cx, cy, cw, ch);
 
+  // Grid rule-of-thirds tipis
+  ctx.strokeStyle = 'rgba(129,212,250,0.35)';
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 3; i++) {
+    ctx.beginPath(); ctx.moveTo(cx + cw * i / 3, cy); ctx.lineTo(cx + cw * i / 3, cy + ch); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, cy + ch * i / 3); ctx.lineTo(cx + cw, cy + ch * i / 3); ctx.stroke();
+  }
+
   // Corner handles
-  const hs = 8;
+  const hs = 10;
   ctx.fillStyle = '#81D4FA';
-  [[cx,cy],[cx+cw-hs,cy],[cx,cy+ch-hs],[cx+cw-hs,cy+ch-hs]].forEach(([x,y]) =>
-    ctx.fillRect(x, y, hs, hs));
+  [[cx, cy], [cx + cw, cy], [cx, cy + ch], [cx + cw, cy + ch]].forEach(([x, y]) => {
+    ctx.beginPath(); ctx.arc(x, y, hs / 2, 0, Math.PI * 2); ctx.fill();
+  });
 
-  document.getElementById('gc-info').textContent =
-    `${Math.round(_cW)} × ${Math.round(_cH)} px`;
+  const infoEl = document.getElementById('gc-info');
+  if (infoEl) infoEl.textContent = `${Math.round(_cW)} × ${Math.round(_cH)} px`;
+}
 
-  canvas._ratio = ratio;
-  canvas.onmousedown = e => {
-    _drag = true;
-    _dox  = e.offsetX - _cX * ratio;
-    _doy  = e.offsetY - _cY * ratio;
+function _hitTest(px, py) {
+  // px, py dalam display coords (sudah dikali ratio)
+  const r = _cRatio;
+  const cx = _cX * r, cy = _cY * r, cw = _cW * r, ch = _cH * r;
+  const hs = HANDLE_SIZE;
+  const corners = {
+    tl: [cx, cy], tr: [cx + cw, cy],
+    bl: [cx, cy + ch], br: [cx + cw, cy + ch]
   };
-  canvas.onmousemove = e => {
-    if (!_drag) return;
-    _cX = Math.max(0, Math.min((e.offsetX - _dox) / ratio, _cImg.naturalWidth  - _cW));
-    _cY = Math.max(0, Math.min((e.offsetY - _doy) / ratio, _cImg.naturalHeight - _cH));
+  for (const [k, [hx, hy]] of Object.entries(corners)) {
+    if (Math.abs(px - hx) <= hs && Math.abs(py - hy) <= hs) return k;
+  }
+  if (px >= cx && px <= cx + cw && py >= cy && py <= cy + ch) return 'move';
+  return null;
+}
+
+function _getPoint(e, canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const t = e.touches ? e.touches[0] : e;
+  return {
+    x: (t.clientX - rect.left) * (canvas.width  / rect.width),
+    y: (t.clientY - rect.top)  * (canvas.height / rect.height)
+  };
+}
+
+function _bindCropEvents() {
+  const canvas = document.getElementById('gc-canvas');
+  if (!canvas) return;
+  // Bersihkan listener lama dgn clone
+  const fresh = canvas.cloneNode(true);
+  canvas.replaceWith(fresh);
+  _drawCrop(); // re-draw karena clone menghapus konteks
+
+  const onDown = e => {
+    e.preventDefault();
+    const p = _getPoint(e, fresh);
+    _action = _hitTest(p.x, p.y);
+    if (!_action) return;
+    _startPt  = p;
+    _startBox = { x: _cX, y: _cY, w: _cW, h: _cH };
+  };
+
+  const onMove = e => {
+    if (!_action) return;
+    e.preventDefault();
+    const p = _getPoint(e, fresh);
+    const dx = (p.x - _startPt.x) / _cRatio;
+    const dy = (p.y - _startPt.y) / _cRatio;
+    const iw = _cImg.naturalWidth, ih = _cImg.naturalHeight;
+    const MIN = 30;
+
+    if (_action === 'move') {
+      _cX = Math.max(0, Math.min(_startBox.x + dx, iw - _startBox.w));
+      _cY = Math.max(0, Math.min(_startBox.y + dy, ih - _startBox.h));
+    } else {
+      let { x, y, w, h } = _startBox;
+      if (_action.includes('l')) { const nx = Math.min(x + dx, x + w - MIN); w += x - nx; x = Math.max(0, nx); }
+      if (_action.includes('r')) { w = Math.max(MIN, Math.min(w + dx, iw - x)); }
+      if (_action.includes('t')) { const ny = Math.min(y + dy, y + h - MIN); h += y - ny; y = Math.max(0, ny); }
+      if (_action.includes('b')) { h = Math.max(MIN, Math.min(h + dy, ih - y)); }
+      _cX = x; _cY = y; _cW = w; _cH = h;
+    }
     _drawCrop();
   };
-  canvas.onmouseup = canvas.onmouseleave = () => { _drag = false; };
+
+  const onUp = () => { _action = null; };
+
+  fresh.addEventListener('mousedown', onDown);
+  fresh.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+
+  fresh.addEventListener('touchstart', onDown, { passive: false });
+  fresh.addEventListener('touchmove',  onMove, { passive: false });
+  fresh.addEventListener('touchend',   onUp);
+  fresh.addEventListener('touchcancel',onUp);
+
+  // Cursor feedback (desktop)
+  fresh.addEventListener('mousemove', e => {
+    if (_action) return;
+    const p = _getPoint(e, fresh);
+    const hit = _hitTest(p.x, p.y);
+    fresh.style.cursor = hit === 'move' ? 'move'
+      : (hit === 'tl' || hit === 'br') ? 'nwse-resize'
+      : (hit === 'tr' || hit === 'bl') ? 'nesw-resize'
+      : 'default';
+  });
 }
 
 function setCropPreset(aspect) {
+  if (!_cImg) return;
   const iw = _cImg.naturalWidth, ih = _cImg.naturalHeight;
   if (aspect === 'free') {
     _cX = 0; _cY = 0; _cW = iw; _cH = ih;
@@ -334,53 +437,35 @@ function setCropPreset(aspect) {
   _drawCrop();
 }
 
-async function confirmCrop() {
-  const btn = document.getElementById('gc-confirm');
-  btnLoad(btn, true);
-  toast.info('Compressing...');
-  try {
-    // Render crop ke canvas sementara
-    const tmp = document.createElement('canvas');
-    tmp.width = _cW; tmp.height = _cH;
-    tmp.getContext('2d').drawImage(_cImg, _cX, _cY, _cW, _cH, 0, 0, _cW, _cH);
-
-    // Convert canvas → File → compress (nama fungsi sesuai components/image.js)
-    const pngFile = await new Promise((res, rej) =>
-      tmp.toBlob(b => b ? res(new File([b], _cFile.name, { type: 'image/png' })) : rej(new Error('Canvas toBlob gagal')), 'image/png'));
-
-    if (typeof compressWebP !== 'function') {
-      throw new Error('compressWebP tidak ditemukan — cek components/image.js termuat dengan benar.');
-    }
-
-    _cBlob = await compressWebP(pngFile);
-
-    const prev = document.getElementById('gc-preview');
-    prev.src = URL.createObjectURL(_cBlob);
-    prev.style.display = 'block';
-    document.getElementById('gc-size').textContent = fmtB(_cBlob.size);
-    document.getElementById('gc-upload').disabled  = false;
-    toast.ok('Siap upload — ' + fmtB(_cBlob.size));
-  } catch (e) {
-    console.error('[gallery] confirmCrop error:', e);
-    toast.err('Compress gagal: ' + e.message);
-  } finally { btnLoad(btn, false); }
-}
-
+/* ── Upload: auto-compress di background, lalu kirim ── */
 async function uploadCroppedPhoto() {
-  if (!_cBlob || !_currentFolder) { toast.err('Belum ada foto yang siap diupload.'); return; }
+  if (!_cImg || !_currentFolder) { toast.err('Belum ada foto yang dipilih.'); return; }
   const btn   = document.getElementById('gc-upload');
   const name  = document.getElementById('gc-name').value.trim()
                  || _cFile.name.replace(/\.[^.]+$/, '');
   const order = parseInt(document.getElementById('gc-order').value) || 0;
+  const sizeEl = document.getElementById('gc-size');
+
   btnLoad(btn, true);
-  toast.info('Uploading ke Supabase Storage...');
+  sizeEl.textContent = 'Compressing...';
   try {
-    if (typeof toFile !== 'function') {
-      throw new Error('toFile tidak ditemukan — cek components/image.js termuat dengan benar.');
-    }
-    const file        = toFile(_cBlob, name);
+    // 1) Render hasil crop ke canvas penuh resolusi
+    const tmp = document.createElement('canvas');
+    tmp.width = _cW; tmp.height = _cH;
+    tmp.getContext('2d').drawImage(_cImg, _cX, _cY, _cW, _cH, 0, 0, _cW, _cH);
+
+    const pngFile = await new Promise((res, rej) =>
+      tmp.toBlob(b => b ? res(new File([b], _cFile.name, { type: 'image/png' })) : rej(new Error('Canvas toBlob gagal')), 'image/png'));
+
+    if (typeof compressWebP !== 'function') throw new Error('compressWebP tidak ditemukan.');
+    const blob = await compressWebP(pngFile);
+    sizeEl.textContent = fmtB(blob.size);
+
+    // 2) Upload ke Supabase Storage
+    if (typeof toFile !== 'function') throw new Error('toFile tidak ditemukan.');
+    const file        = toFile(blob, name);
     const storagePath = `gallery/${_currentFolder.slug}/${file.name}`;
-    const url         = await sb.upload(GALLERY_BUCKET, storagePath, file);
+    const url          = await sb.upload(GALLERY_BUCKET, storagePath, file);
 
     await sb.post('gallery_photos', {
       folder_id:    _currentFolder.id,
@@ -390,11 +475,12 @@ async function uploadCroppedPhoto() {
       sort_order:   order
     });
 
-    toast.ok('Foto berhasil diupload!');
+    toast.ok('Foto berhasil diupload! (' + fmtB(blob.size) + ')');
     modal.close('gc-modal');
     await loadPhotos(_currentFolder.id);
   } catch (e) {
     console.error('[gallery] uploadCroppedPhoto error:', e);
+    sizeEl.textContent = '';
     toast.err('Upload gagal: ' + e.message);
   } finally { btnLoad(btn, false); }
 }
