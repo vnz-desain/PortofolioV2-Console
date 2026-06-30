@@ -22,18 +22,26 @@ let _folders   = [];
 let _folderId  = null;
 
 function initGallery() {
-  document.getElementById('gf-add').addEventListener('click', () => openFolder());
-  document.getElementById('gf-modal-x').addEventListener('click', () => modal.close('gf-modal'));
-  document.getElementById('gf-save').addEventListener('click', saveFolder);
-  document.getElementById('gf-delete').addEventListener('click', () => delFolder(_folderId));
-  loadFolders();
+  try {
+    document.getElementById('gf-add').addEventListener('click', () => openFolder());
+    document.getElementById('gf-modal-x').addEventListener('click', () => modal.close('gf-modal'));
+    document.getElementById('gf-save').addEventListener('click', saveFolder);
+    document.getElementById('gf-delete').addEventListener('click', () => delFolder(_folderId));
+    loadFolders();
+  } catch (e) {
+    console.error('[gallery] initGallery error:', e);
+    toast.err('Gagal inisialisasi gallery: ' + e.message);
+  }
 }
 
 async function loadFolders() {
   try {
     _folders = await sb.get('gallery_folders', 'sort_order.asc');
     renderFolders();
-  } catch (e) { toast.err('Gagal load folders: ' + e.message); }
+  } catch (e) {
+    console.error('[gallery] loadFolders error:', e);
+    toast.err('Gagal load folders: ' + e.message);
+  }
 }
 
 function renderFolders() {
@@ -101,8 +109,10 @@ async function saveFolder() {
     toast.ok(_folderId ? 'Folder diupdate!' : 'Folder ditambahkan!');
     modal.close('gf-modal');
     await loadFolders();
-  } catch (e) { toast.err('Gagal: ' + e.message); }
-  finally { btnLoad(btn, false); }
+  } catch (e) {
+    console.error('[gallery] saveFolder error:', e);
+    toast.err('Gagal: ' + e.message);
+  } finally { btnLoad(btn, false); }
 }
 
 async function delFolder(id) {
@@ -113,7 +123,10 @@ async function delFolder(id) {
     toast.ok('Folder dihapus.');
     modal.close('gf-modal');
     await loadFolders();
-  } catch (e) { toast.err('Gagal hapus: ' + e.message); }
+  } catch (e) {
+    console.error('[gallery] delFolder error:', e);
+    toast.err('Gagal hapus: ' + e.message);
+  }
 }
 
 /* ══ PHOTOS ═════════════════════════════════════════════ */
@@ -130,11 +143,15 @@ function openGalleryPhotos(folderId, folderName, slug) {
 
 async function loadPhotos(folderId) {
   const grid = document.getElementById('gp-grid');
-  grid.innerHTML = '<div class="empty"><div class="spin spin-light"></div></div>';
+  grid.innerHTML = '<div class="empty"><div class="spin spin-light"></div><p style="margin-top:0.5rem;opacity:0.6">Memuat foto...</p></div>';
   try {
     _photos = await sb.get('gallery_photos', 'sort_order.asc', 'folder_id=eq.' + folderId);
     renderPhotos();
-  } catch (e) { toast.err('Gagal load foto: ' + e.message); }
+  } catch (e) {
+    console.error('[gallery] loadPhotos error:', e);
+    grid.innerHTML = `<div class="empty"><p style="color:var(--danger,#f87171)">Gagal load foto: ${e.message}</p></div>`;
+    toast.err('Gagal load foto: ' + e.message);
+  }
 }
 
 function renderPhotos() {
@@ -178,7 +195,10 @@ async function editPhotoOrder(photoId, currentOrder) {
     await sb.patch('gallery_photos', photoId, { sort_order: order });
     toast.ok('Urutan diupdate!');
     await loadPhotos(_currentFolder.id);
-  } catch (e) { toast.err('Gagal: ' + e.message); }
+  } catch (e) {
+    console.error('[gallery] editPhotoOrder error:', e);
+    toast.err('Gagal: ' + e.message);
+  }
 }
 
 async function deletePhoto(photoId, storagePath) {
@@ -189,30 +209,49 @@ async function deletePhoto(photoId, storagePath) {
     toast.ok('Foto dihapus.');
     _photos = _photos.filter(p => p.id !== photoId);
     renderPhotos();
-  } catch (e) { toast.err('Hapus gagal: ' + e.message); }
+  } catch (e) {
+    console.error('[gallery] deletePhoto error:', e);
+    toast.err('Hapus gagal: ' + e.message);
+  }
 }
 
 /* ══ UPLOAD ZONE ════════════════════════════════════════ */
 function _initUploadZone() {
-  // Clone untuk bersihkan event listener lama
-  const oldZone = document.getElementById('gp-upload-zone');
-  const oldFi   = document.getElementById('gp-upload-file');
-  const zone    = oldZone.cloneNode(true);
-  const fi      = oldFi.cloneNode(true);
-  oldZone.replaceWith(zone);
-  oldFi.replaceWith(fi);
+  try {
+    const oldZone = document.getElementById('gp-upload-zone');
+    const oldFi   = document.getElementById('gp-upload-file');
+    const oldBtn  = document.getElementById('gp-upload-btn');
+    if (!oldZone || !oldFi || !oldBtn) {
+      console.error('[gallery] _initUploadZone: elemen tidak ditemukan', { oldZone, oldFi, oldBtn });
+      toast.err('Gagal init upload zone — cek modal HTML.');
+      return;
+    }
 
-  zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag'); });
-  zone.addEventListener('dragleave', ()  => zone.classList.remove('drag'));
-  zone.addEventListener('drop', e => {
-    e.preventDefault(); zone.classList.remove('drag');
-    const f = e.dataTransfer?.files[0];
-    if (f && f.type.startsWith('image/')) _openCrop(f);
-  });
-  fi.addEventListener('change', () => { if (fi.files[0]) _openCrop(fi.files[0]); });
+    // Clone untuk bersihkan event listener lama
+    const zone = oldZone.cloneNode(true);
+    const fi   = oldFi.cloneNode(true);
+    oldZone.replaceWith(zone);
+    oldFi.replaceWith(fi);
 
-  document.getElementById('gp-upload-btn').onclick =
-    () => document.getElementById('gp-upload-file').click();
+    zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag'); });
+    zone.addEventListener('dragleave', ()  => zone.classList.remove('drag'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('drag');
+      const f = e.dataTransfer?.files[0];
+      if (f && f.type.startsWith('image/')) _openCrop(f);
+      else if (f) toast.err('File harus berupa gambar.');
+    });
+    fi.addEventListener('change', () => {
+      if (fi.files[0]) _openCrop(fi.files[0]);
+    });
+
+    // Re-fetch tombol upload (DOM tidak diclone, masih elemen asli)
+    document.getElementById('gp-upload-btn').onclick =
+      () => document.getElementById('gp-upload-file').click();
+  } catch (e) {
+    console.error('[gallery] _initUploadZone error:', e);
+    toast.err('Gagal setup upload: ' + e.message);
+  }
 }
 
 /* ══ CROP MODAL ═════════════════════════════════════════ */
@@ -299,31 +338,37 @@ function setCropPreset(aspect) {
 async function confirmCrop() {
   const btn = document.getElementById('gc-confirm');
   btnLoad(btn, true);
+  toast.info('Compressing...');
   try {
     // Render crop ke canvas sementara
     const tmp = document.createElement('canvas');
     tmp.width = _cW; tmp.height = _cH;
     tmp.getContext('2d').drawImage(_cImg, _cX, _cY, _cW, _cH, 0, 0, _cW, _cH);
 
-    // Convert canvas → File → compressToWebP
-    const pngFile = await new Promise(res =>
-      tmp.toBlob(b => res(new File([b], _cFile.name, { type: 'image/png' })), 'image/png'));
+    // Convert canvas → File → compress (nama fungsi sesuai components/image.js)
+    const pngFile = await new Promise((res, rej) =>
+      tmp.toBlob(b => b ? res(new File([b], _cFile.name, { type: 'image/png' })) : rej(new Error('Canvas toBlob gagal')), 'image/png'));
 
-    toast.info('Compressing ke WebP...');
-    _cBlob = await compressToWebP(pngFile);
+    if (typeof compressWebP !== 'function') {
+      throw new Error('compressWebP tidak ditemukan — cek components/image.js termuat dengan benar.');
+    }
+
+    _cBlob = await compressWebP(pngFile);
 
     const prev = document.getElementById('gc-preview');
     prev.src = URL.createObjectURL(_cBlob);
     prev.style.display = 'block';
-    document.getElementById('gc-size').textContent = formatBytes(_cBlob.size);
+    document.getElementById('gc-size').textContent = fmtB(_cBlob.size);
     document.getElementById('gc-upload').disabled  = false;
-    toast.ok('Siap upload — ' + formatBytes(_cBlob.size));
-  } catch (e) { toast.err('Compress gagal: ' + e.message); }
-  finally { btnLoad(btn, false); }
+    toast.ok('Siap upload — ' + fmtB(_cBlob.size));
+  } catch (e) {
+    console.error('[gallery] confirmCrop error:', e);
+    toast.err('Compress gagal: ' + e.message);
+  } finally { btnLoad(btn, false); }
 }
 
 async function uploadCroppedPhoto() {
-  if (!_cBlob || !_currentFolder) return;
+  if (!_cBlob || !_currentFolder) { toast.err('Belum ada foto yang siap diupload.'); return; }
   const btn   = document.getElementById('gc-upload');
   const name  = document.getElementById('gc-name').value.trim()
                  || _cFile.name.replace(/\.[^.]+$/, '');
@@ -331,7 +376,10 @@ async function uploadCroppedPhoto() {
   btnLoad(btn, true);
   toast.info('Uploading ke Supabase Storage...');
   try {
-    const file        = blobToFile(_cBlob, name);
+    if (typeof toFile !== 'function') {
+      throw new Error('toFile tidak ditemukan — cek components/image.js termuat dengan benar.');
+    }
+    const file        = toFile(_cBlob, name);
     const storagePath = `gallery/${_currentFolder.slug}/${file.name}`;
     const url         = await sb.upload(GALLERY_BUCKET, storagePath, file);
 
@@ -346,6 +394,8 @@ async function uploadCroppedPhoto() {
     toast.ok('Foto berhasil diupload!');
     modal.close('gc-modal');
     await loadPhotos(_currentFolder.id);
-  } catch (e) { toast.err('Upload gagal: ' + e.message); }
-  finally { btnLoad(btn, false); }
+  } catch (e) {
+    console.error('[gallery] uploadCroppedPhoto error:', e);
+    toast.err('Upload gagal: ' + e.message);
+  } finally { btnLoad(btn, false); }
 }
