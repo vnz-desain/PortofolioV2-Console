@@ -209,7 +209,7 @@
     <!-- Gallery (Phase 3) -->
     <div class="page" data-p="gallery">
       <div class="page-header">
-        <div><h1>Gallery</h1><p>gallery.evanalmunawar.my.id · Google Drive</p></div>
+        <div><h1>Gallery</h1><p>gallery.evanalmunawar.my.id · Supabase Storage</p></div>
         <button class="btn btn-primary" id="gf-add">+ Folder</button>
       </div>
       <div class="card">
@@ -389,17 +389,28 @@
 <!-- Gallery Folder modal -->
 <div class="modal-bg" id="gf-modal">
   <div class="modal">
-    <div class="modal-hd"><h3 id="gf-modal-title">Add Folder</h3><button class="btn btn-ghost btn-sm btn-icon" id="gf-modal-x">✕</button></div>
+    <div class="modal-hd">
+      <h3 id="gf-modal-title">Add Folder</h3>
+      <button class="btn btn-ghost btn-sm btn-icon" id="gf-modal-x">✕</button>
+    </div>
     <div class="modal-body">
-      <div class="field"><label class="label">Nama Folder <span class="req">*</span></label><input class="input" id="gf-name" placeholder="Class Meeting" /></div>
-      <div class="field"><label class="label">Deskripsi</label><textarea class="textarea" id="gf-desc" rows="2" placeholder="Deskripsi singkat..."></textarea></div>
       <div class="field">
-        <label class="label">Drive Folder ID <span class="req">*</span></label>
-        <input class="input" id="gf-drive-id" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs" />
-        <span class="hint">Ambil dari URL Drive: drive.google.com/drive/folders/<strong>[ID INI]</strong></span>
+        <label class="label">Nama Folder <span class="req">*</span></label>
+        <input class="input" id="gf-name" placeholder="MKV" />
       </div>
-      <div class="field"><label class="label">Cover URL</label><input class="input" id="gf-cover" placeholder="https://... (opsional)" /></div>
-      <div class="field"><label class="label">Urutan</label><input class="input order-in" type="number" id="gf-order" value="0" min="0" /></div>
+      <div class="field">
+        <label class="label">Slug <span class="req">*</span></label>
+        <input class="input" id="gf-slug" placeholder="mkv" />
+        <span class="hint">Path di Storage: <code>gallery/<em>slug</em>/foto.webp</code> — auto dari nama</span>
+      </div>
+      <div class="field">
+        <label class="label">Deskripsi</label>
+        <textarea class="textarea" id="gf-desc" rows="2" placeholder="Deskripsi singkat..."></textarea>
+      </div>
+      <div class="field">
+        <label class="label">Urutan</label>
+        <input class="input order-in" type="number" id="gf-order" value="0" min="0" />
+      </div>
     </div>
     <div class="modal-ft">
       <button class="btn btn-danger btn-sm" id="gf-delete" style="display:none">Hapus</button>
@@ -421,24 +432,67 @@
     <div class="modal-body">
       <!-- Upload zone -->
       <div class="upload-zone" id="gp-upload-zone" style="padding:0.85rem">
-        <input type="file" id="gp-upload-file" accept="image/*" />
+        <input type="file" id="gp-upload-file" accept="image/*" style="display:none" />
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <p>Upload foto baru</p>
-        <small>Auto compress → WebP ≤500KB</small>
+        <p>Drag & drop foto ke sini</p>
+        <small>Crop → WebP → compress ≤500KB → Supabase Storage</small>
       </div>
-      <input type="hidden" id="gp-drive-id-val" />
-      <!-- Actions -->
-      <div style="display:flex;gap:0.5rem;margin-top:0.5rem">
-        <button class="btn btn-ghost btn-sm" id="gp-sync-btn" onclick="syncFromDrive()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          Sync dari Drive
-        </button>
-        <button class="btn btn-primary btn-sm" id="gp-upload-btn" onclick="document.getElementById('gp-upload-file').click()">
-          + Upload Foto
-        </button>
+      <div style="display:flex;justify-content:flex-end;margin-top:0.5rem">
+        <button class="btn btn-primary btn-sm" id="gp-upload-btn">+ Upload Foto</button>
       </div>
       <!-- Photo grid -->
       <div class="gp-grid" id="gp-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Gallery Crop & Compress modal -->
+<div class="modal-bg" id="gc-modal">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-hd">
+      <h3>Crop & Upload</h3>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="modal.close('gc-modal')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:0.75rem">
+      <!-- Nama & urutan -->
+      <div style="display:flex;gap:0.5rem">
+        <div class="field" style="margin:0;flex:1">
+          <label class="label">Nama Foto</label>
+          <input class="input" id="gc-name" placeholder="nama-foto" />
+        </div>
+        <div class="field" style="margin:0;width:90px">
+          <label class="label">Urutan</label>
+          <input class="input" type="number" id="gc-order" value="0" min="0" />
+        </div>
+      </div>
+      <!-- Preset crop -->
+      <div style="display:flex;gap:0.35rem;align-items:center;flex-wrap:wrap">
+        <span class="label" style="margin:0;white-space:nowrap">Crop:</span>
+        <button class="btn btn-ghost btn-sm" onclick="setCropPreset('free')">Bebas</button>
+        <button class="btn btn-ghost btn-sm" onclick="setCropPreset('1:1')">1:1</button>
+        <button class="btn btn-ghost btn-sm" onclick="setCropPreset('4:3')">4:3</button>
+        <button class="btn btn-ghost btn-sm" onclick="setCropPreset('16:9')">16:9</button>
+        <button class="btn btn-ghost btn-sm" onclick="setCropPreset('3:2')">3:2</button>
+        <span id="gc-info" style="font-size:0.72rem;opacity:0.45;margin-left:auto"></span>
+      </div>
+      <!-- Canvas -->
+      <div style="background:var(--bg-2);border-radius:8px;padding:0.5rem;display:flex;justify-content:center;overflow:auto">
+        <canvas id="gc-canvas" style="cursor:move;max-width:100%;border-radius:4px;display:block"></canvas>
+      </div>
+      <p style="font-size:0.7rem;opacity:0.4;margin:0">Drag area biru untuk memindahkan crop. Pilih preset untuk ubah rasio.</p>
+      <!-- Compress -->
+      <button class="btn btn-ghost btn-sm" id="gc-confirm" onclick="confirmCrop()">⚡ Compress & Preview</button>
+      <!-- Preview hasil -->
+      <div style="display:flex;align-items:flex-start;gap:0.75rem">
+        <img id="gc-preview" style="max-width:120px;border-radius:6px;display:none" />
+        <span id="gc-size" style="font-size:0.75rem;opacity:0.5;align-self:center"></span>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <div class="modal-ft-right">
+        <button class="btn btn-ghost btn-sm" onclick="modal.close('gc-modal')">Batal</button>
+        <button class="btn btn-primary btn-sm" id="gc-upload" onclick="uploadCroppedPhoto()" disabled>Upload ke Storage</button>
+      </div>
     </div>
   </div>
 </div>
