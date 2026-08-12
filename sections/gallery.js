@@ -310,12 +310,12 @@ function _drawCrop() {
   ctx.fill('evenodd');
 
   // Border crop
-  ctx.strokeStyle = '#81D4FA';
+  ctx.strokeStyle = '#E8E4D8';
   ctx.lineWidth = 2;
   ctx.strokeRect(cx, cy, cw, ch);
 
   // Grid rule-of-thirds tipis
-  ctx.strokeStyle = 'rgba(129,212,250,0.35)';
+  ctx.strokeStyle = 'rgba(232,228,216,0.35)';
   ctx.lineWidth = 1;
   for (let i = 1; i < 3; i++) {
     ctx.beginPath(); ctx.moveTo(cx + cw * i / 3, cy); ctx.lineTo(cx + cw * i / 3, cy + ch); ctx.stroke();
@@ -324,7 +324,7 @@ function _drawCrop() {
 
   // Corner handles
   const hs = 10;
-  ctx.fillStyle = '#81D4FA';
+  ctx.fillStyle = '#E8E4D8';
   [[cx, cy], [cx + cw, cy], [cx, cy + ch], [cx + cw, cy + ch]].forEach(([x, y]) => {
     ctx.beginPath(); ctx.arc(x, y, hs / 2, 0, Math.PI * 2); ctx.fill();
   });

@@ -1,5 +1,5 @@
 /* ── Dashboard items ── */
-.dash-item { display: flex; align-items: center; gap: 0.65rem; padding: 0.55rem 0; border-bottom: 1px solid rgba(129,212,250,0.05); font-size: 0.8rem; }
+.dash-item { display: flex; align-items: center; gap: 0.65rem; padding: 0.55rem 0; border-bottom: 1px solid rgba(232,228,216,0.05); font-size: 0.8rem; }
 .dash-item:last-child { border-bottom: none; }
 
 /* ── Table cells ── */
@@ -29,7 +29,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.65rem 0;
-  border-bottom: 1px solid rgba(129,212,250,0.06);
+  border-bottom: 1px solid rgba(232,228,216,0.06);
   cursor: pointer;
   transition: background var(--t);
   border-radius: 4px;
@@ -37,7 +37,7 @@
   padding-right: 0.25rem;
 }
 .row-item:last-child { border-bottom: none; }
-.row-item:hover { background: rgba(129,212,250,0.04); }
+.row-item:hover { background: rgba(232,228,216,0.04); }
 
 .row-order {
   font-family: var(--mono);

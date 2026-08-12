@@ -5,18 +5,18 @@
 
 :root {
   /* ── Color tokens ── */
-  --bg:          #080D18;
-  --bg-soft:     #0B111E;
-  --surface:     #101828;
-  --surface-2:   #131C2E;
-  --surface-3:   #1A2540;
-  --border:      rgba(129,212,250,0.09);
-  --border-mid:  rgba(129,212,250,0.18);
-  --accent:      #81D4FA;
-  --accent-dim:  rgba(129,212,250,0.12);
-  --accent-glow: rgba(129,212,250,0.06);
-  --white:       #F0F4F8;
-  --white-dim:   #8A9AAD;
+  --bg:          #0A0A0A;
+  --bg-soft:     #0F0F0F;
+  --surface:     #141414;
+  --surface-2:   #161616;
+  --surface-3:   #1E1E1E;
+  --border:      rgba(232,228,216,0.09);
+  --border-mid:  rgba(232,228,216,0.18);
+  --accent:      #E8E4D8;
+  --accent-dim:  rgba(232,228,216,0.12);
+  --accent-glow: rgba(232,228,216,0.06);
+  --white:       #FAFAFA;
+  --white-dim:   #A1A1A1;
   --danger:      #F87171;
   --danger-dim:  rgba(248,113,113,0.12);
   --success:     #34D399;
@@ -53,7 +53,7 @@ body {
 }
 
 /* Browser defaults removal */
-::selection { background: rgba(129,212,250,0.2); color: var(--white); }
+::selection { background: rgba(232,228,216,0.2); color: var(--white); }
 * { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
 :focus:not(:focus-visible) { outline: none; }
